@@ -1,8 +1,11 @@
 // src/main/java/blash10x/ocrtranslator/service/TranslationService.java
 package blash10x.ocrtranslator.service;
 
+import blash10x.ocrtranslator.App;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.net.http.HttpClient;
@@ -12,16 +15,28 @@ import java.nio.charset.StandardCharsets;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.X509Certificate;
+import java.util.Properties;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
 /**
  * 외부 번역 API를 호출하여 텍스트를 번역하는 서비스입니다.
+ * <p/>
+ * Author: myungsik.sung@gmail.com
  */
 public class TranslationService {
+  private final Properties properties = new Properties();
+  private final String targetUrl;
 
-  private static final String TARGET_URL = "https://papago.naver.com/apis/n2mt/translate";
+  public TranslationService() {
+    try (InputStream input = App.class.getResourceAsStream("translation-service.properties")) {
+      properties.load(input);
+    } catch (IOException e) {
+      System.err.println("Could not load translation service.properties: " + e.getMessage());
+    }
+    targetUrl = properties.getProperty("target-url");
+  }
 
   public String translate(String textToTranslate) {
     try {
@@ -29,21 +44,20 @@ public class TranslationService {
       HttpClient client = createInsecureHttpClient();
 
       // Form-Data 인코딩
-      String formData = "text=" + URLEncoder.encode(textToTranslate, StandardCharsets.UTF_8)
-          + "&deviceId=1b224e02-c3c4-42f1-b892-e3d14acda04d"
-          + "&locale=ko"
-          + "&dict=true"
-          + "&dictDisplay=30"
-          + "&honorific=false"
-          + "&source=ja&target=ko"
-          + "&usageAgreed=false"
-          ;
+      StringBuilder formData = new StringBuilder();
+      formData.append("text=").append(URLEncoder.encode(textToTranslate, StandardCharsets.UTF_8));
+
+      properties.entrySet().stream()
+          .filter(entry -> entry.getKey().toString().startsWith("form-data"))
+          .forEach(entry -> formData.append("&")
+              .append(entry.getKey().toString().substring(10))
+              .append("=").append(entry.getValue().toString()));
 
       HttpRequest request = HttpRequest.newBuilder()
-          .uri(URI.create(TARGET_URL))
+          .uri(URI.create(targetUrl))
           .header("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8")
           .header("Accept", "application/json")
-          .POST(HttpRequest.BodyPublishers.ofString(formData))
+          .POST(HttpRequest.BodyPublishers.ofString(formData.toString()))
           .build();
 
       HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
@@ -60,7 +74,6 @@ public class TranslationService {
       }
 
     } catch (Exception e) {
-      e.printStackTrace();
       return "Translation Error: " + e.getMessage();
     }
   }

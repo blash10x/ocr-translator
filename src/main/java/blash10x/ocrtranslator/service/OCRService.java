@@ -14,6 +14,8 @@ import javax.imageio.ImageIO;
 
 /**
  * 스크린샷 이미지에서 텍스트를 추출하는 OCR 서비스입니다.
+ * <p/>
+ * Author: myungsik.sung@gmail.com
  */
 public class OCRService {
 
@@ -23,6 +25,7 @@ public class OCRService {
 
   public OCRService() {
     tesseract = new Tesseract();
+    tesseract.setVariable("user_defined_dpi", "96");
     tesseract.setDatapath(TESSDATA_PATH); // tessdata 경로 설정
     // tesseract.setLanguage("kor+eng"); // 인식할 언어 설정 (한글과 영어를 동시에 인식)
     //tesseract.setLanguage("kor"); // 예시로 한글만 설정, 필요시 "kor+eng" 등으로 변경
