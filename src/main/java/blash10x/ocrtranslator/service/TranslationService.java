@@ -1,11 +1,8 @@
 // src/main/java/blash10x/ocrtranslator/service/TranslationService.java
 package blash10x.ocrtranslator.service;
 
-import blash10x.ocrtranslator.App;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.net.http.HttpClient;
@@ -26,16 +23,22 @@ import javax.net.ssl.X509TrustManager;
  * Author: myungsik.sung@gmail.com
  */
 public class TranslationService {
-  private final Properties properties = new Properties();
+  private final ObjectMapper mapper = new ObjectMapper();
   private final String targetUrl;
+  private final String subFormData;
+  private final String resultKey;
 
-  public TranslationService() {
-    try (InputStream input = App.class.getResourceAsStream("translation-service.properties")) {
-      properties.load(input);
-    } catch (IOException e) {
-      System.err.println("Could not load translation service.properties: " + e.getMessage());
-    }
-    targetUrl = properties.getProperty("target-url");
+  public TranslationService(Properties properties) {
+    targetUrl = properties.getProperty("translation.target-url");
+
+    StringBuilder formData = new StringBuilder();
+    properties.entrySet().stream()
+        .filter(entry -> entry.getKey().toString().startsWith("translation.form-data"))
+        .forEach(entry -> formData.append("&")
+            .append(entry.getKey().toString().substring(22))
+            .append("=").append(entry.getValue().toString()));
+    subFormData = formData.toString();
+    resultKey = properties.getProperty("translation.response.resultKey");
   }
 
   public String translate(String textToTranslate) {
@@ -44,35 +47,23 @@ public class TranslationService {
       HttpClient client = createInsecureHttpClient();
 
       // Form-Data 인코딩
-      StringBuilder formData = new StringBuilder();
-      formData.append("text=").append(URLEncoder.encode(textToTranslate, StandardCharsets.UTF_8));
-
-      properties.entrySet().stream()
-          .filter(entry -> entry.getKey().toString().startsWith("form-data"))
-          .forEach(entry -> formData.append("&")
-              .append(entry.getKey().toString().substring(10))
-              .append("=").append(entry.getValue().toString()));
-
+      String formData = "text=" + URLEncoder.encode(textToTranslate, StandardCharsets.UTF_8) + subFormData;
       HttpRequest request = HttpRequest.newBuilder()
           .uri(URI.create(targetUrl))
           .header("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8")
           .header("Accept", "application/json")
-          .POST(HttpRequest.BodyPublishers.ofString(formData.toString()))
+          .POST(HttpRequest.BodyPublishers.ofString(formData))
           .build();
 
       HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-      // JSON 파싱
-      ObjectMapper mapper = new ObjectMapper();
-      JsonNode rootNode = mapper.readTree(response.body());
-
       // "translatedText" 필드 추출
-      if (rootNode.has("translatedText")) {
-        return rootNode.get("translatedText").asText();
+      JsonNode rootNode = mapper.readTree(response.body()); // JSON 파싱
+      if (rootNode.has(resultKey)) {
+        return rootNode.get(resultKey).asText();
       } else {
         return "Error: No translatedText in response";
       }
-
     } catch (Exception e) {
       return "Translation Error: " + e.getMessage();
     }

@@ -4,6 +4,8 @@ package blash10x.ocrtranslator;
 import blash10x.ocrtranslator.controller.PrimaryController;
 import blash10x.ocrtranslator.service.OCRService;
 import blash10x.ocrtranslator.service.TranslationService;
+import java.io.InputStream;
+import java.util.Properties;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -11,6 +13,9 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 
+/**
+ * Author: myungsik.sung@gmail.com
+ */
 public class App extends Application {
 
   private OCRService ocrService;
@@ -19,9 +24,16 @@ public class App extends Application {
   @Override
   public void init() throws Exception {
     super.init();
+
     // 서비스 초기화 (애플리케이션 시작 시 한 번만)
-    ocrService = new OCRService();
-    translationService = new TranslationService();
+    Properties properties = new Properties();
+    try (InputStream input = App.class.getResourceAsStream("config.properties")) {
+      properties.load(input);
+    } catch (IOException e) {
+      System.err.println("Could not load config.properties: " + e.getMessage());
+    }
+    ocrService = new OCRService(properties);
+    translationService = new TranslationService(properties);
   }
 
   @Override

@@ -1,6 +1,7 @@
 // src/main/java/blash10x/ocrtranslator/service/OCRService.java
 package blash10x.ocrtranslator.service;
 
+import java.util.Properties;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
 import net.sourceforge.tess4j.ITesseract;
@@ -18,19 +19,23 @@ import javax.imageio.ImageIO;
  * Author: myungsik.sung@gmail.com
  */
 public class OCRService {
-
   private final ITesseract tesseract;
-//  private final String TESSDATA_PATH = "src/main/resources/tessdata"; // tessdata 경로
-  private final String TESSDATA_PATH = "C:\\Program Files\\Tesseract-OCR\\tessdata"; // tessdata 경로
 
-  public OCRService() {
+  public OCRService(Properties properties) {
+    String tessdataPath = properties.getProperty("ocr.tesseract.tessdata.path");
+    String language = properties.getProperty("ocr.tesseract.language");
+
     tesseract = new Tesseract();
-    tesseract.setVariable("user_defined_dpi", "96");
-    tesseract.setDatapath(TESSDATA_PATH); // tessdata 경로 설정
-    // tesseract.setLanguage("kor+eng"); // 인식할 언어 설정 (한글과 영어를 동시에 인식)
-    //tesseract.setLanguage("kor"); // 예시로 한글만 설정, 필요시 "kor+eng" 등으로 변경
-    tesseract.setLanguage("jpn"); // 예시로 한글만 설정, 필요시 "kor+eng" 등으로 변경
-    //System.out.println("Tesseract datapath: " + tesseract.getDatapath());
+    tesseract.setDatapath(tessdataPath); // tessdata 경로 설정
+    tesseract.setLanguage(language);
+
+    properties.entrySet().stream()
+        .filter(entry -> entry.getKey().toString().startsWith("ocr.tesseract.variable"))
+        .forEach(entry -> {
+          String key = entry.getKey().toString().substring(23);
+          String value = entry.getValue().toString();
+          tesseract.setVariable(key, value);
+        });
   }
 
   /**
@@ -51,7 +56,6 @@ public class OCRService {
       return tesseract.doOCR(bufferedImage);
     } catch (TesseractException e) {
       System.err.println("OCR 처리 중 오류 발생: " + e.getMessage());
-      e.printStackTrace();
       return "";
     }
   }
