@@ -68,12 +68,13 @@ public class PrimaryController {
 
     //Stage secondaryStage = new Stage();
     secondaryStage = new Stage();
+    secondaryStage.setAlwaysOnTop(true);
 
     secondaryStage.initModality(Modality.NONE);
     secondaryStage.setTitle("Capture Window");
 
     // Scene 생성 시 초기 너비와 높이를 지정합니다.
-    Scene secondaryScene = new Scene(secondaryRoot, 600, 400); // 이전 단계에서 요청하신 초기 크기 지정
+    Scene secondaryScene = new Scene(secondaryRoot, 600, 400);
     secondaryStage.setScene(secondaryScene);
 
     // SecondaryController에 Stage 설정

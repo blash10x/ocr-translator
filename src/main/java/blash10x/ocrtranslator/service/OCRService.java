@@ -4,6 +4,8 @@ package blash10x.ocrtranslator.service;
 import java.util.Properties;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
+import net.sourceforge.tess4j.ITessAPI.TessOcrEngineMode;
+import net.sourceforge.tess4j.ITessAPI.TessPageSegMode;
 import net.sourceforge.tess4j.ITesseract;
 import net.sourceforge.tess4j.Tesseract;
 import net.sourceforge.tess4j.TesseractException;
@@ -28,6 +30,8 @@ public class OCRService {
     tesseract = new Tesseract();
     tesseract.setDatapath(tessdataPath); // tessdata 경로 설정
     tesseract.setLanguage(language);
+    tesseract.setOcrEngineMode(TessOcrEngineMode.OEM_LSTM_ONLY);
+    //tesseract.setPageSegMode(TessPageSegMode.PSM_SPARSE_TEXT);
 
     properties.entrySet().stream()
         .filter(entry -> entry.getKey().toString().startsWith("ocr.tesseract.variable"))
