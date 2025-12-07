@@ -17,6 +17,9 @@ import java.awt.Rectangle;
 import java.awt.Robot;
 import java.awt.image.BufferedImage;
 
+/**
+ * Author: myungsik.sung@gmail.com
+ */
 public class SecondaryController {
 
   @FXML
@@ -54,6 +57,7 @@ public class SecondaryController {
   @FXML
   public void initialize() {
     // --- 창 이동 (titleBar) ---
+    /*
     titleBar.setOnMousePressed(event -> {
       // 마우스 커서가 경계선이 아닐 때만 이동 모드
       if (currentResizeMode == ResizeMode.NONE) {
@@ -68,6 +72,7 @@ public class SecondaryController {
         stage.setY(event.getScreenY() + yOffset);
       }
     });
+    */
 
     // --- 창 크기 조절 (rootVBox 전체에 이벤트 부착) ---
     // Scene의 root에 이벤트 리스너를 부착하여 전체 Stage 영역에 대해 감지
@@ -117,11 +122,16 @@ public class SecondaryController {
         initialStageY = stage.getY();
         initialStageWidth = stage.getWidth();
         initialStageHeight = stage.getHeight();
+      } else { // 마우스 커서가 경계선이 아닐 때만 이동 모드
+        xOffset = stage.getX() - event.getScreenX();
+        yOffset = stage.getY() - event.getScreenY();
       }
     });
 
     rootVBox.setOnMouseDragged(event -> {
-      if (currentResizeMode == ResizeMode.NONE) {
+      if (currentResizeMode == ResizeMode.NONE) { // 마우스 커서가 경계선이 아닐 때만 이동 모드
+        stage.setX(event.getScreenX() + xOffset);
+        stage.setY(event.getScreenY() + yOffset);
         return; // 리사이즈 모드가 아니면 처리 안함
       }
 
@@ -214,10 +224,14 @@ public class SecondaryController {
     // 스크린샷 캡처를 위해 투명 창의 중앙 영역 (transparentRegion)의 화면상 절대 좌표를 계산합니다.
     javafx.geometry.Point2D screenCoords = transparentRegion.localToScreen(0, 0);
 
-    int x = (int) screenCoords.getX();
-    int y = (int) screenCoords.getY();
-    int width = (int) transparentRegion.getWidth();
-    int height = (int) transparentRegion.getHeight();
+
+    transparentRegion.getBorder();
+
+    int margin = 3; // exclude: -fx-border-width: 2
+    int x = (int) screenCoords.getX() + margin;
+    int y = (int) screenCoords.getY() + margin;
+    int width = (int) transparentRegion.getWidth() - 2 * margin;
+    int height = (int) transparentRegion.getHeight() - 2 * margin;
 
     // 캡처 영역이 유효한지 확인
     if (width <= 0 || height <= 0) {
@@ -236,7 +250,6 @@ public class SecondaryController {
       // stage.close(); // 캡처 후 창을 닫을 경우
     } catch (AWTException e) {
       System.err.println("화면 캡처 중 오류가 발생했습니다: " + e.getMessage());
-      e.printStackTrace();
     }
   }
 

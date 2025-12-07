@@ -17,6 +17,9 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 
+/**
+ * Author: myungsik.sung@gmail.com
+ */
 public class PrimaryController {
 
   @FXML
@@ -27,6 +30,8 @@ public class PrimaryController {
   private TextArea textArea2; // 번역 결과
 
   private SecondaryController secondaryController;
+  private Stage secondaryStage;
+
   private OCRService ocrService;
   private TranslationService translationService;
 
@@ -51,12 +56,19 @@ public class PrimaryController {
 
   @FXML
   private void openCaptureWindow() throws IOException {
+    if (secondaryStage != null) {
+      secondaryStage.show();
+      return;
+    }
+
     FXMLLoader fxmlLoader = new FXMLLoader(App.class.getResource("secondary-view.fxml"));
     Pane secondaryRoot = fxmlLoader.load();
     secondaryController = fxmlLoader.getController();
     secondaryController.setPrimaryController(this); // SecondaryController에 PrimaryController 전달
 
-    Stage secondaryStage = new Stage();
+    //Stage secondaryStage = new Stage();
+    secondaryStage = new Stage();
+
     secondaryStage.initModality(Modality.NONE);
     secondaryStage.setTitle("Capture Window");
 

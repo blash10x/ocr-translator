@@ -18,7 +18,7 @@
       <padding>
         <Insets top="10" right="10" bottom="10" left="10"/>
       </padding>
-      <Label text="OCR Translator"/>
+<!--      <Label text="OCR Translator"/>-->
       <Button text="Capture Window Open" onAction="#openCaptureWindow"/>
     </HBox>
   </top>
@@ -27,7 +27,7 @@
       <padding>
         <Insets top="10" right="10" bottom="10" left="10"/>
       </padding>
-      <Label text="Captured Image" alignment="CENTER"/>
+<!--      <Label text="Captured Image" alignment="CENTER"/>-->
       <ScrollPane fitToWidth="true" fitToHeight="true" VBox.vgrow="ALWAYS">
         <ImageView fx:id="primaryImageView" preserveRatio="true" fitWidth="600" fitHeight="400"/>
       </ScrollPane>
