@@ -5,6 +5,7 @@ module blash10x.ocrtranslator {
   requires java.desktop;
   requires java.net.http;
   requires com.fasterxml.jackson.databind;
+  requires opencv;
   requires tess4j;
 
   opens blash10x.ocrtranslator to javafx.fxml;

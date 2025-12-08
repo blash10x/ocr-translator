@@ -47,7 +47,7 @@ public class SecondaryController {
 
   private static final double BORDER_WIDTH = 8; // 크기 조절을 위한 경계선 두께
   private static final double MIN_WIDTH = 200;  // 창의 최소 너비
-  private static final double MIN_HEIGHT = 150; // 창의 최소 높이
+  private static final double MIN_HEIGHT = 100; // 창의 최소 높이
 
   // 창 크기 조절 모드를 위한 Enum
   private enum ResizeMode {

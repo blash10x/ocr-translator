@@ -37,6 +37,7 @@ javafx {
 
 dependencies {
     implementation("net.sourceforge.tess4j:tess4j:5.16.0")
+    implementation("org.openpnp:opencv:4.9.0-0")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.20.1")
     runtimeOnly("org.slf4j:slf4j-nop:2.0.17")
 
