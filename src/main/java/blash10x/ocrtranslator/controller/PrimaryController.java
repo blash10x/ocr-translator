@@ -7,7 +7,7 @@ import blash10x.ocrtranslator.service.TranslationService;
 import java.awt.image.BufferedImage;
 import java.util.List;
 import java.util.stream.Collectors;
-import javafx.application.Platform; // Platform import 추가
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -19,6 +19,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import lombok.Setter;
 import net.sourceforge.tess4j.Word;
 
 /**
@@ -36,17 +37,10 @@ public class PrimaryController {
   private SecondaryController secondaryController;
   private Stage secondaryStage;
 
+  @Setter
   private OCRService ocrService;
+  @Setter
   private TranslationService translationService;
-
-  // 서비스 주입용 세터
-  public void setOcrService(OCRService ocrService) {
-    this.ocrService = ocrService;
-  }
-
-  public void setTranslationService(TranslationService translationService) {
-    this.translationService = translationService;
-  }
 
   @FXML
   public void initialize() {

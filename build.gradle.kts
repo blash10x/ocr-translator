@@ -39,6 +39,10 @@ dependencies {
     implementation("net.sourceforge.tess4j:tess4j:5.16.0")
     implementation(fileTree("libs") { include("*.jar") })
     implementation("com.fasterxml.jackson.core:jackson-databind:2.20.1")
+    implementation("org.projectlombok:lombok:1.18.42")
+
+    annotationProcessor("org.projectlombok:lombok:1.18.42")
+
     runtimeOnly("org.slf4j:slf4j-nop:2.0.17")
 
     testImplementation("org.junit.jupiter:junit-jupiter-api:${junitVersion}")

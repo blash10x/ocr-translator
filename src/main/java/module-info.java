@@ -7,6 +7,7 @@ module blash10x.ocrtranslator {
   requires com.fasterxml.jackson.databind;
   requires opencv;
   requires tess4j;
+  requires static lombok;
 
   opens blash10x.ocrtranslator to javafx.fxml;
   exports blash10x.ocrtranslator;

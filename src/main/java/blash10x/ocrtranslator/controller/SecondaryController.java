@@ -16,6 +16,7 @@ import java.awt.AWTException;
 import java.awt.Rectangle;
 import java.awt.Robot;
 import java.awt.image.BufferedImage;
+import lombok.Setter;
 
 /**
  * Author: myungsik.sung@gmail.com
@@ -30,6 +31,7 @@ public class SecondaryController {
   private VBox rootVBox; // FXML의 최상위 VBox (창 크기 조절 이벤트 부착용)
 
   private Stage stage;
+  @Setter
   private PrimaryController primaryController;
 
   // 창 이동 관련 변수
@@ -56,24 +58,6 @@ public class SecondaryController {
 
   @FXML
   public void initialize() {
-    // --- 창 이동 (titleBar) ---
-    /*
-    titleBar.setOnMousePressed(event -> {
-      // 마우스 커서가 경계선이 아닐 때만 이동 모드
-      if (currentResizeMode == ResizeMode.NONE) {
-        xOffset = stage.getX() - event.getScreenX();
-        yOffset = stage.getY() - event.getScreenY();
-      }
-    });
-
-    titleBar.setOnMouseDragged(event -> {
-      if (currentResizeMode == ResizeMode.NONE) { // 리사이즈 중이 아닐 때만 이동
-        stage.setX(event.getScreenX() + xOffset);
-        stage.setY(event.getScreenY() + yOffset);
-      }
-    });
-    */
-
     // --- 창 크기 조절 (rootVBox 전체에 이벤트 부착) ---
     // Scene의 root에 이벤트 리스너를 부착하여 전체 Stage 영역에 대해 감지
     rootVBox.setOnMouseMoved(event -> {
@@ -90,7 +74,6 @@ public class SecondaryController {
         currentResizeMode = ResizeMode.NONE;
         return;
       }
-
 
       // 커서 종류 설정 및 리사이즈 모드 감지
       if (x < BORDER_WIDTH && y < BORDER_WIDTH + titleBarHeight) { // 좌상단
@@ -207,11 +190,6 @@ public class SecondaryController {
         handleCapture();
       }
     });
-  }
-
-  // PrimaryController를 주입받아 통신에 사용
-  public void setPrimaryController(PrimaryController primaryController) {
-    this.primaryController = primaryController;
   }
 
   // Stage 객체를 설정하고 투명성 등을 처리
