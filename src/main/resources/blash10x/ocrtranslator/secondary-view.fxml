@@ -20,7 +20,7 @@
 
   <!-- 중앙 투명 영역. 이 영역 아래의 화면을 캡처합니다. -->
   <Pane fx:id="transparentRegion" VBox.vgrow="ALWAYS"
-    style="-fx-background-color: rgba(0, 0, 0, 0.1); -fx-border-color: lime; -fx-border-width: 2; -fx-border-radius: 3;">
+    style="-fx-background-color: rgba(0, 0, 0, 0.05); -fx-border-color: lime; -fx-border-width: 2; -fx-border-radius: 3;">
     <!-- 여기에 표시되는 콘텐츠는 사실상 보이지 않습니다. -->
   </Pane>
 </VBox>

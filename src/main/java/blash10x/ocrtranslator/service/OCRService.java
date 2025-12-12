@@ -18,7 +18,7 @@ import net.sourceforge.tess4j.ITesseract;
 import net.sourceforge.tess4j.Tesseract;
 import net.sourceforge.tess4j.TesseractException;
 import net.sourceforge.tess4j.Word;
-import nu.pattern.OpenCV;
+ import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
@@ -34,8 +34,7 @@ public class OCRService {
   private final ITesseract tesseract;
 
   static {
-    OpenCV.loadShared();
-    //System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+    System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
   }
 
   public OCRService(Properties properties) {
@@ -113,9 +112,8 @@ public class OCRService {
       );
 
       // 2. 사각형의 좌표 정의
-      int margin = 2;
-      Point pt1 = new Point(rect.x - margin, rect.y - margin); // 왼쪽 상단 (x, y)
-      Point pt2 = new Point(rect.x + rect.width + margin, rect.y + rect.height + margin); // 오른쪽 하단 (x, y)
+      Point pt1 = new Point(rect.x, rect.y); // 왼쪽 상단 (x, y)
+      Point pt2 = new Point(rect.x + rect.width, rect.y + rect.height); // 오른쪽 하단 (x, y)
 
       // 3. 색상 정의 (OpenCV는 BGR 순서 사용: Blue, Green, Red)
       Scalar color = new Scalar(0, 255, 0); // 빨간색 (Blue=0, Green=255, Red=0)

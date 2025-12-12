@@ -6,6 +6,7 @@ import blash10x.ocrtranslator.service.OCRService;
 import blash10x.ocrtranslator.service.TranslationService;
 import java.awt.image.BufferedImage;
 import java.util.List;
+import java.util.stream.Collectors;
 import javafx.application.Platform; // Platform import 추가
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -97,13 +98,12 @@ public class PrimaryController {
     Platform.runLater(() -> {
       // 1. OCR 수행 (별도 스레드에서 실행하여 UI 스레드 블로킹 방지)
       new Thread(() -> {
-        String ocrResult = ocrService.doOCR(image);
-
         List<Word> ocrWords = ocrService.getWords(image);
         BufferedImage originalBfImage = ocrService.convertFxImageToBufferedImage(image);
         BufferedImage modifiedBfImage = ocrService.drawBoxes(ocrWords, originalBfImage);
         Image modifiedFxImage = ocrService.convertBufferedImageToFxImage(modifiedBfImage);
         primaryImageView.setImage(modifiedFxImage);
+        String ocrResult = ocrWords.stream().map(Word::getText).collect(Collectors.joining());
 
         Platform.runLater(() -> {
           textArea1.setText(ocrResult); // 첫 번째 TextArea에 OCR 결과 표시
