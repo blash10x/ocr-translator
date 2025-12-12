@@ -37,7 +37,7 @@ javafx {
 
 dependencies {
     implementation("net.sourceforge.tess4j:tess4j:5.16.0")
-    implementation(files("libs/opencv/opencv-4120.jar"))
+    implementation("org.opencv:opencv:4.12.0")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.20.1")
     runtimeOnly("org.slf4j:slf4j-nop:2.0.17")
 
