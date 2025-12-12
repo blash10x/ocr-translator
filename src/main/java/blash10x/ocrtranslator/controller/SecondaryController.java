@@ -93,9 +93,9 @@ public class SecondaryController {
 
 
       // 커서 종류 설정 및 리사이즈 모드 감지
-      if (x < BORDER_WIDTH && y < BORDER_WIDTH) { // 좌상단
+      if (x < BORDER_WIDTH && y < BORDER_WIDTH + titleBarHeight) { // 좌상단
         scene.setCursor(Cursor.NW_RESIZE); currentResizeMode = ResizeMode.NW;
-      } else if (x > width - BORDER_WIDTH && y < BORDER_WIDTH) { // 우상단
+      } else if (x > width - BORDER_WIDTH && y < BORDER_WIDTH + titleBarHeight) { // 우상단
         scene.setCursor(Cursor.NE_RESIZE); currentResizeMode = ResizeMode.NE;
       } else if (x < BORDER_WIDTH && y > height - BORDER_WIDTH) { // 좌하단
         scene.setCursor(Cursor.SW_RESIZE); currentResizeMode = ResizeMode.SW;
@@ -105,7 +105,7 @@ public class SecondaryController {
         scene.setCursor(Cursor.W_RESIZE); currentResizeMode = ResizeMode.W;
       } else if (x > width - BORDER_WIDTH) { // 우측
         scene.setCursor(Cursor.E_RESIZE); currentResizeMode = ResizeMode.E;
-      } else if (y < titleBarHeight + BORDER_WIDTH) { // 상단
+      } else if (y < BORDER_WIDTH + titleBarHeight) { // 상단
         scene.setCursor(Cursor.N_RESIZE); currentResizeMode = ResizeMode.N;
       } else if (y > height - BORDER_WIDTH) { // 하단
         scene.setCursor(Cursor.S_RESIZE); currentResizeMode = ResizeMode.S;
@@ -201,6 +201,12 @@ public class SecondaryController {
         stage.getScene().setCursor(Cursor.DEFAULT);
       }
     });
+
+    transparentRegion.setOnMouseClicked(event -> {
+      if (event.getClickCount() == 2) {
+        handleCapture();
+      }
+    });
   }
 
   // PrimaryController를 주입받아 통신에 사용
@@ -215,7 +221,6 @@ public class SecondaryController {
     this.stage.getScene().setFill(null); // Scene의 배경도 null로 설정하여 투명하게
   }
 
-  @FXML
   private void handleCapture() {
     if (stage == null || primaryController == null) {
       System.err.println("Stage or PrimaryController is not set.");
@@ -224,9 +229,6 @@ public class SecondaryController {
 
     // 스크린샷 캡처를 위해 투명 창의 중앙 영역 (transparentRegion)의 화면상 절대 좌표를 계산합니다.
     javafx.geometry.Point2D screenCoords = transparentRegion.localToScreen(0, 0);
-
-
-    transparentRegion.getBorder();
 
     int margin = 3; // exclude: -fx-border-width: 2
     int x = (int) screenCoords.getX() + margin;

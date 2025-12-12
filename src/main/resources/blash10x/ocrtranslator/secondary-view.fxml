@@ -14,7 +14,6 @@
     <padding>
       <Insets top="5" right="5" bottom="5" left="5"/>
     </padding>
-    <Button text="Capture" onAction="#handleCapture"/>
     <Button text="Close" onAction="#handleClose"/>
   </HBox>
 
