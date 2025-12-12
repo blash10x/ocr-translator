@@ -78,13 +78,14 @@ public class SecondaryController {
     // Scene의 root에 이벤트 리스너를 부착하여 전체 Stage 영역에 대해 감지
     rootVBox.setOnMouseMoved(event -> {
       Scene scene = stage.getScene();
+      double titleBarHeight = titleBar.getHeight();
       double x = event.getX(); // Scene 내부 X 좌표
       double y = event.getY(); // Scene 내부 Y 좌표
       double width = scene.getWidth();
       double height = scene.getHeight();
 
       // 상단 바 영역에서는 리사이즈 커서를 보이지 않도록 함
-      if (y < titleBar.getHeight() && y > 0) { // titleBar 영역
+      if (y < titleBarHeight) { // titleBar 영역
         scene.setCursor(Cursor.DEFAULT);
         currentResizeMode = ResizeMode.NONE;
         return;
@@ -104,7 +105,7 @@ public class SecondaryController {
         scene.setCursor(Cursor.W_RESIZE); currentResizeMode = ResizeMode.W;
       } else if (x > width - BORDER_WIDTH) { // 우측
         scene.setCursor(Cursor.E_RESIZE); currentResizeMode = ResizeMode.E;
-      } else if (y < BORDER_WIDTH) { // 상단
+      } else if (y < titleBarHeight + BORDER_WIDTH) { // 상단
         scene.setCursor(Cursor.N_RESIZE); currentResizeMode = ResizeMode.N;
       } else if (y > height - BORDER_WIDTH) { // 하단
         scene.setCursor(Cursor.S_RESIZE); currentResizeMode = ResizeMode.S;
