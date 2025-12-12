@@ -38,3 +38,6 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+
+libs/
+src/main/resources/blash10x/ocrtranslator/config.properties

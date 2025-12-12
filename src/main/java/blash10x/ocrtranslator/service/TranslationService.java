@@ -12,6 +12,8 @@ import java.nio.charset.StandardCharsets;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.X509Certificate;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
@@ -23,10 +25,13 @@ import javax.net.ssl.X509TrustManager;
  * Author: myungsik.sung@gmail.com
  */
 public class TranslationService {
-  private final ObjectMapper mapper = new ObjectMapper();
   private final String targetUrl;
   private final String subFormData;
   private final String resultKey;
+
+  private final Map<String, String> cache = new HashMap<>();
+  private final HttpClient client;
+  private final ObjectMapper mapper = new ObjectMapper();
 
   public TranslationService(Properties properties) {
     targetUrl = properties.getProperty("translation.target-url");
@@ -39,13 +44,20 @@ public class TranslationService {
             .append("=").append(entry.getValue().toString()));
     subFormData = formData.toString();
     resultKey = properties.getProperty("translation.response.resultKey");
+
+    try {
+      client = createInsecureHttpClient();
+    } catch (NoSuchAlgorithmException | KeyManagementException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   public String translate(String textToTranslate) {
-    try {
-      // Localhost의 self-signed 인증서 무시를 위한 설정 (개발용)
-      HttpClient client = createInsecureHttpClient();
+    return cache.computeIfAbsent(textToTranslate, key -> _translate(textToTranslate));
+  }
 
+  private String _translate(String textToTranslate) {
+    try {
       // Form-Data 인코딩
       String formData = "text=" + URLEncoder.encode(textToTranslate, StandardCharsets.UTF_8) + subFormData;
       HttpRequest request = HttpRequest.newBuilder()
