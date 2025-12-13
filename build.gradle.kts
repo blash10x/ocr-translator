@@ -36,8 +36,8 @@ javafx {
 }
 
 dependencies {
-    implementation("net.sourceforge.tess4j:tess4j:5.16.0")
     implementation(fileTree("libs") { include("*.jar") })
+    implementation("net.sourceforge.tess4j:tess4j:5.16.0")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.20.1")
     implementation("org.projectlombok:lombok:1.18.42")
 

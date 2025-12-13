@@ -39,5 +39,8 @@ bin/
 ### Mac OS ###
 .DS_Store
 
-libs/
+### Local ###
 src/main/resources/blash10x/ocrtranslator/config.properties
+libs/
+workbench/
+

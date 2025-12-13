@@ -17,7 +17,6 @@ import java.io.IOException;
  * Author: myungsik.sung@gmail.com
  */
 public class App extends Application {
-
   private OCRService ocrService;
   private TranslationService translationService;
 
@@ -42,7 +41,6 @@ public class App extends Application {
     Scene scene = new Scene(fxmlLoader.load(), 620, 700);
     PrimaryController primaryController = fxmlLoader.getController();
 
-    // 컨트롤러에 서비스 주입
     primaryController.setOcrService(ocrService);
     primaryController.setTranslationService(translationService);
 
