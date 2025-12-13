@@ -2,6 +2,7 @@
 package blash10x.ocrtranslator.service;
 
 import java.util.Properties;
+import javafx.scene.control.TextArea;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
@@ -19,8 +20,8 @@ public class OCRService {
     tesseractOCRService = new TesseractOCRService(properties);
   }
 
-  public String doOCR(Image image, ImageView imageView) {
-    tesseractOCRService.doOCR(image, imageView);
-    return paddleOCRService.ocr();
+  public String doOCR(Image image, ImageView imageView, TextArea textArea) {
+    tesseractOCRService.doOCR(image, imageView, textArea);
+    return paddleOCRService.ocr(imageView, textArea);
   }
 }

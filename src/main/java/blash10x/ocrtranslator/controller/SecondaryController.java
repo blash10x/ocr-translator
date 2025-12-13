@@ -227,19 +227,15 @@ public class SecondaryController {
       // Java AWT Robot을 사용하여 화면의 특정 영역을 캡처
       BufferedImage screenCapture = robot.createScreenCapture(new Rectangle(x, y, width, height));
       WritableImage fxImage = SwingFXUtils.toFXImage(screenCapture, null);
-
-      // Write the BufferedImage to the file
-      try {
-        ImageIO.write(screenCapture, "bmp", new File(".", "screenshot.bmp"));
-      } catch (IOException e) {
-        throw new RuntimeException(e);
-      }
+      ImageIO.write(screenCapture, "bmp", new File(".", "screenshot.bmp"));
 
       primaryController.displayCapturedImage(fxImage); // 캡처된 이미지를 Primary Stage로 전달
       System.out.println("스크린샷이 Primary Stage로 전송되었습니다.");
       // stage.close(); // 캡처 후 창을 닫을 경우
     } catch (AWTException e) {
       System.err.println("화면 캡처 중 오류가 발생했습니다: " + e.getMessage());
+    } catch (IOException e) {
+      System.err.println("화면 캡처 저장 중 오류가 발생했습니다: " + e.getMessage());
     }
   }
 

@@ -82,12 +82,14 @@ public class PrimaryController {
    */
   public void displayCapturedImage(Image image) {
     primaryImageView.setImage(image);
+    textArea1.setText("처리 중입니다...");
+    textArea2.setText("준비 중입니다...");
 
     // UI 업데이트는 JavaFX Application Thread에서 실행
     Platform.runLater(() -> {
       // 1. OCR 수행 (별도 스레드에서 실행하여 UI 스레드 블로킹 방지)
       new Thread(() -> {
-        String ocrResult = ocrService.doOCR(image, primaryImageView);
+        String ocrResult = ocrService.doOCR(image, primaryImageView, textArea1);
 
         Platform.runLater(() -> {
           textArea1.setText(ocrResult); // 첫 번째 TextArea에 OCR 결과 표시
