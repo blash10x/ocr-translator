@@ -48,13 +48,13 @@ public class PaddleOCRService {
       JsonNode rootNode = mapper.readTree(jsonFile);
       JsonNode recTextsNode = rootNode.get("rec_texts");
       for (JsonNode arrayNode : recTextsNode )  {
-        sb.append(arrayNode.toPrettyString().replace("\"", ""));
+        sb.append(arrayNode.toPrettyString().replace("\"", "")).append("\n");
       }
     } catch (Exception e) {
       e.printStackTrace();
     }
-    System.out.println("paddleOCR: " + sb.toString());
-    textArea.setText(sb.toString());
+    System.out.println("paddleOCR: " + sb);
+    textArea.setText(sb.toString().strip());
     return sb.toString();
   }
 }

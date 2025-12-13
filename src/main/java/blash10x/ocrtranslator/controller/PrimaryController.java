@@ -90,18 +90,15 @@ public class PrimaryController {
       // 1. OCR 수행 (별도 스레드에서 실행하여 UI 스레드 블로킹 방지)
       new Thread(() -> {
         String ocrResult = ocrService.doOCR(image, primaryImageView, textArea1);
+        textArea1.setText(ocrResult); // 첫 번째 TextArea에 OCR 결과 표시
+        System.out.println("OCR 결과:\n" + ocrResult);
 
+        // 2. 번역 수행 (OCR 결과가 나온 후 별도 스레드에서 실행)
         Platform.runLater(() -> {
-          textArea1.setText(ocrResult); // 첫 번째 TextArea에 OCR 결과 표시
-          System.out.println("OCR 결과:\n" + ocrResult);
-
-          // 2. 번역 수행 (OCR 결과가 나온 후 별도 스레드에서 실행)
           new Thread(() -> {
             String translatedText = translationService.translate(ocrResult);
-            Platform.runLater(() -> {
-              textArea2.setText(translatedText); // 두 번째 TextArea에 번역 결과 표시
-              System.out.println("번역 결과:\n" + translatedText);
-            });
+            textArea2.setText(translatedText); // 두 번째 TextArea에 번역 결과 표시
+            System.out.println("번역 결과:\n" + translatedText);
           }).start();
         });
       }).start();
