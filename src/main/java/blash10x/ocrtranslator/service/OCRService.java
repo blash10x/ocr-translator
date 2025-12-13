@@ -13,15 +13,20 @@ import javafx.scene.image.ImageView;
  */
 public class OCRService {
   private final PaddleOCRService paddleOCRService;
-  private final TesseractOCRService tesseractOCRService;
+//  private final TesseractOCRService tesseractOCRService;
 
   public OCRService(Properties properties) {
     paddleOCRService = new PaddleOCRService(properties);
-    tesseractOCRService = new TesseractOCRService(properties);
+//    tesseractOCRService = new TesseractOCRService(properties);
   }
 
   public String doOCR(Image image, ImageView imageView, TextArea textArea) {
-    tesseractOCRService.doOCR(image, imageView, textArea);
-    return paddleOCRService.ocr(imageView, textArea);
+//    String resultText = tesseractOCRService.doOCR(image, imageView);
+//    System.out.println("tesseract: " + resultText);
+//    textArea.setText(resultText);
+    String resultText = paddleOCRService.doOCR(imageView);
+    System.out.println("paddleOCR: " + resultText);
+    textArea.setText(resultText);
+    return resultText;
   }
 }

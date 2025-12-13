@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Properties;
 import java.util.stream.Collectors;
 import javafx.embed.swing.SwingFXUtils;
-import javafx.scene.control.TextArea;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javax.imageio.ImageIO;
@@ -58,16 +57,15 @@ public class TesseractOCRService {
         });
   }
 
-  public String doOCR(Image image, ImageView imageView, TextArea textArea) {
+  public String doOCR(Image image, ImageView imageView) {
     List<Word> ocrWords = getWords(image);
+
     BufferedImage originalBfImage = convertFxImageToBufferedImage(image);
     BufferedImage modifiedBfImage = drawBoxes(ocrWords, originalBfImage);
     Image modifiedFxImage = convertBufferedImageToFxImage(modifiedBfImage);
     imageView.setImage(modifiedFxImage);
-    String ocrResult = ocrWords.stream().map(Word::getText).collect(Collectors.joining());
-    System.out.println("tesseract: " + ocrResult);
-    textArea.setText(ocrResult);
-    return ocrResult;
+
+    return ocrWords.stream().map(Word::getText).collect(Collectors.joining());
   }
 
   private List<Word> getWords(Image image) {

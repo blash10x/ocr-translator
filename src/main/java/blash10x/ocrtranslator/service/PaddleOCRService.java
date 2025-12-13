@@ -3,9 +3,9 @@ package blash10x.ocrtranslator.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
+import java.io.IOException;
 import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
-import javafx.scene.control.TextArea;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
@@ -27,34 +27,39 @@ public class PaddleOCRService {
     outputJsonPath = properties.getProperty("paddleocr.output.json.path");
   }
 
-  public String ocr(ImageView imageView, TextArea textArea) {
-    StringBuilder sb = new StringBuilder();
+  public String doOCR(ImageView imageView) {
     try {
       Process process = Runtime.getRuntime().exec(new String[]{"cmd", "/c", command});
       CompletableFuture<Process> future = process.onExit();
       future.get(); // wait
 
-      File file = new File(outputImagePath);
-      Image outputImage = new Image(file.toURI().toString());
-      WritableImage writableImage = new WritableImage(
-          outputImage.getPixelReader(),
-          0, 0,
-          (int) (outputImage.getWidth() / 2),
-          (int) outputImage.getHeight()
-      );
-      imageView.setImage(writableImage);
-
-      File jsonFile = new File(outputJsonPath);
-      JsonNode rootNode = mapper.readTree(jsonFile);
-      JsonNode recTextsNode = rootNode.get("rec_texts");
-      for (JsonNode arrayNode : recTextsNode )  {
-        sb.append(arrayNode.toPrettyString().replace("\"", "")).append("\n");
-      }
+      splitImage(imageView);
+      return collectTexts();
     } catch (Exception e) {
-      e.printStackTrace();
+      return e.getMessage();
     }
-    System.out.println("paddleOCR: " + sb);
-    textArea.setText(sb.toString().strip());
-    return sb.toString();
+  }
+
+  private void splitImage(ImageView imageView) {
+    File file = new File(outputImagePath);
+    Image outputImage = new Image(file.toURI().toString());
+    WritableImage writableImage = new WritableImage(
+        outputImage.getPixelReader(),
+        0, 0,
+        (int) (outputImage.getWidth() / 2),
+        (int) outputImage.getHeight()
+    );
+    imageView.setImage(writableImage);
+  }
+
+  private String collectTexts() throws IOException {
+    StringBuilder sb = new StringBuilder();
+    File jsonFile = new File(outputJsonPath);
+    JsonNode rootNode = mapper.readTree(jsonFile);
+    JsonNode recTextsNode = rootNode.get("rec_texts");
+    for (JsonNode arrayNode : recTextsNode )  {
+      sb.append(arrayNode.toPrettyString().replace("\"", "")).append("\n");
+    }
+    return sb.toString().strip();
   }
 }
