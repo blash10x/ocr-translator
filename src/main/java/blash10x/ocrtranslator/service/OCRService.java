@@ -11,13 +11,16 @@ import javafx.scene.image.ImageView;
  * Author: myungsik.sung@gmail.com
  */
 public class OCRService {
+  private final PaddleOCRService paddleOCRService;
   private final TesseractOCRService tesseractOCRService;
 
   public OCRService(Properties properties) {
+    paddleOCRService = new PaddleOCRService(properties);
     tesseractOCRService = new TesseractOCRService(properties);
   }
 
   public String doOCR(Image image, ImageView imageView) {
-    return tesseractOCRService.doOCR(image, imageView);
+    tesseractOCRService.doOCR(image, imageView);
+    return paddleOCRService.ocr();
   }
 }

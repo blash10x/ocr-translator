@@ -1,6 +1,12 @@
 // SecondaryController.java
 package blash10x.ocrtranslator.controller;
 
+import java.awt.AWTException;
+import java.awt.Rectangle;
+import java.awt.Robot;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
 import javafx.scene.Cursor;
@@ -8,14 +14,10 @@ import javafx.scene.Scene;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox; // VBox import 추가
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-
-import java.awt.AWTException;
-import java.awt.Rectangle;
-import java.awt.Robot;
-import java.awt.image.BufferedImage;
+import javax.imageio.ImageIO;
 import lombok.Setter;
 
 /**
@@ -225,6 +227,13 @@ public class SecondaryController {
       // Java AWT Robot을 사용하여 화면의 특정 영역을 캡처
       BufferedImage screenCapture = robot.createScreenCapture(new Rectangle(x, y, width, height));
       WritableImage fxImage = SwingFXUtils.toFXImage(screenCapture, null);
+
+      // Write the BufferedImage to the file
+      try {
+        ImageIO.write(screenCapture, "bmp", new File(".", "screenshot.bmp"));
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
 
       primaryController.displayCapturedImage(fxImage); // 캡처된 이미지를 Primary Stage로 전달
       System.out.println("스크린샷이 Primary Stage로 전송되었습니다.");
