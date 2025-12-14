@@ -3,7 +3,8 @@ package blash10x.ocrtranslator.controller;
 
 import blash10x.ocrtranslator.App;
 import blash10x.ocrtranslator.service.OCRService;
-import blash10x.ocrtranslator.service.TranslationService;
+import blash10x.ocrtranslator.service.TranslationN2mtService;
+import blash10x.ocrtranslator.service.TranslationNsmtService;
 import java.io.IOException;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -28,14 +29,19 @@ public class PrimaryController {
   private TextArea textArea1; // OCR 결과
   @FXML
   private TextArea textArea2; // 번역 결과
+  @FXML
+  private TextArea textArea3; // 번역 결과
 
   private SecondaryController secondaryController;
   private Stage secondaryStage;
 
   @Setter
   private OCRService ocrService;
+
   @Setter
-  private TranslationService translationService;
+  private TranslationNsmtService translationNsmtService;
+  @Setter
+  private TranslationN2mtService translationN2mtService;
 
   @FXML
   public void initialize() {
@@ -84,6 +90,7 @@ public class PrimaryController {
     primaryImageView.setImage(image);
     textArea1.setText("처리 중입니다...");
     textArea2.setText("준비 중입니다...");
+    textArea3.setText("준비 중입니다...");
 
     // UI 업데이트는 JavaFX Application Thread에서 실행
     Platform.runLater(() -> {
@@ -96,9 +103,16 @@ public class PrimaryController {
         // 2. 번역 수행 (OCR 결과가 나온 후 별도 스레드에서 실행)
         Platform.runLater(() -> {
           new Thread(() -> {
-            String translatedText = translationService.translate(ocrResult);
+            String translatedText = translationNsmtService.translate(ocrResult);
             textArea2.setText(translatedText); // 두 번째 TextArea에 번역 결과 표시
-            System.out.println("번역 결과:\n" + translatedText);
+            System.out.println("번역 결과(nsmt):\n" + translatedText);
+          }).start();
+        });
+        Platform.runLater(() -> {
+          new Thread(() -> {
+            String translatedText = translationN2mtService.translate(ocrResult);
+            textArea3.setText(translatedText); // 세 번째 TextArea에 번역 결과 표시
+            System.out.println("번역 결과(n2mt):\n" + translatedText);
           }).start();
         });
       }).start();

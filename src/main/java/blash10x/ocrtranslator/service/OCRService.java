@@ -25,7 +25,7 @@ public class OCRService {
 //    System.out.println("tesseract: " + resultText);
 //    textArea.setText(resultText);
     String resultText = paddleOCRService.doOCR(imageView);
-    System.out.println("paddleOCR: " + resultText);
+//    System.out.println("paddleOCR: " + resultText);
     textArea.setText(resultText);
     return resultText;
   }

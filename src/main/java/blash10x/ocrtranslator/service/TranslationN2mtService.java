@@ -24,7 +24,8 @@ import javax.net.ssl.X509TrustManager;
  * <p/>
  * Author: myungsik.sung@gmail.com
  */
-public class TranslationService {
+public class TranslationN2mtService {
+  private static final String PREFIX = "translation.n2mt.";
   private final String targetUrl;
   private final String subFormData;
   private final String resultKey;
@@ -33,14 +34,14 @@ public class TranslationService {
   private final HttpClient client;
   private final ObjectMapper mapper = new ObjectMapper();
 
-  public TranslationService(Properties properties) {
-    targetUrl = properties.getProperty("translation.target-url");
+  public TranslationN2mtService(Properties properties) {
+    targetUrl = properties.getProperty(PREFIX + "target-url");
 
     StringBuilder formData = new StringBuilder();
     properties.entrySet().stream()
-        .filter(entry -> entry.getKey().toString().startsWith("translation.form-data"))
+        .filter(entry -> entry.getKey().toString().startsWith(PREFIX + "form-data"))
         .forEach(entry -> formData.append("&")
-            .append(entry.getKey().toString().substring(22))
+            .append(entry.getKey().toString().substring(27))
             .append("=").append(entry.getValue().toString()));
     subFormData = formData.toString();
     resultKey = properties.getProperty("translation.response.resultKey");

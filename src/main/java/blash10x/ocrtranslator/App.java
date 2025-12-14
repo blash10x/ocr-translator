@@ -3,10 +3,12 @@ package blash10x.ocrtranslator;
 
 import blash10x.ocrtranslator.controller.PrimaryController;
 import blash10x.ocrtranslator.service.OCRService;
-import blash10x.ocrtranslator.service.TranslationService;
+import blash10x.ocrtranslator.service.TranslationN2mtService;
+import blash10x.ocrtranslator.service.TranslationNsmtService;
 import java.io.InputStream;
 import java.util.Properties;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
@@ -18,7 +20,8 @@ import java.io.IOException;
  */
 public class App extends Application {
   private OCRService ocrService;
-  private TranslationService translationService;
+  private TranslationNsmtService translationNstmService;
+  private TranslationN2mtService translationN2mtService;
 
   @Override
   public void init() throws Exception {
@@ -32,21 +35,25 @@ public class App extends Application {
       System.err.println("Could not load config.properties: " + e.getMessage());
     }
     ocrService = new OCRService(properties);
-    translationService = new TranslationService(properties);
+    translationNstmService = new TranslationNsmtService(properties);
+    translationN2mtService = new TranslationN2mtService(properties);
   }
 
   @Override
   public void start(Stage stage) throws IOException {
     FXMLLoader fxmlLoader = new FXMLLoader(App.class.getResource("primary-view.fxml"));
-    Scene scene = new Scene(fxmlLoader.load(), 620, 700);
+    Scene scene = new Scene(fxmlLoader.load(), 620, 830);
     PrimaryController primaryController = fxmlLoader.getController();
 
     primaryController.setOcrService(ocrService);
-    primaryController.setTranslationService(translationService);
+    primaryController.setTranslationNsmtService(translationNstmService);
+    primaryController.setTranslationN2mtService(translationN2mtService);
 
     stage.setTitle("Primary OCR Translator");
     stage.setScene(scene);
     stage.show();
+
+    stage.setOnCloseRequest(event -> Platform.exit());
   }
 
   public static void main(String[] args) {
