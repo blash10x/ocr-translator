@@ -12,6 +12,7 @@ import javafx.fxml.FXML;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.image.WritableImage;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -190,6 +191,14 @@ public class SecondaryController {
     transparentRegion.setOnMouseClicked(event -> {
       if (event.getClickCount() == 2) {
         handleCapture();
+      }
+    });
+
+    rootVBox.setOnKeyPressed(event -> {
+      if (event.getCode() == KeyCode.C && event.isAltDown()) {
+        System.out.println("Alt + C pressed! Event handled.");
+        handleCapture();
+        event.consume();
       }
     });
   }
