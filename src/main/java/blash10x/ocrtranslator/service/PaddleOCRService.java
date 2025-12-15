@@ -1,11 +1,19 @@
 package blash10x.ocrtranslator.service;
 
+import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
+import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.WatchEvent;
+import java.nio.file.WatchKey;
+import java.nio.file.WatchService;
 import java.util.Properties;
-import java.util.concurrent.CompletableFuture;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
@@ -14,6 +22,7 @@ import javafx.scene.image.WritableImage;
  * Author: myungsik.sung@gmail.com
  */
 public class PaddleOCRService {
+  private final Path dir = Paths.get(".\\output"); // 예: Paths.get("./sampleDir")
   private final ObjectMapper mapper = new ObjectMapper();
   private final String command;
   private final String imagePath;
@@ -25,14 +34,45 @@ public class PaddleOCRService {
     imagePath = properties.getProperty("paddleocr.image.path");
     outputImagePath = properties.getProperty("paddleocr.output.image.path");
     outputJsonPath = properties.getProperty("paddleocr.output.json.path");
+
+    try {
+      Runtime.getRuntime().exec(new String[]{"cmd", "/c", command});
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   public String doOCR(ImageView imageView) {
     try {
-      Process process = Runtime.getRuntime().exec(new String[]{"cmd", "/c", command});
-      CompletableFuture<Process> future = process.onExit();
-      future.get(); // wait
+      // 감시할 이벤트 종류 등록
+      WatchService watcher = FileSystems.getDefault().newWatchService();
+      dir.register(watcher, ENTRY_CREATE, ENTRY_MODIFY);
+      System.out.println("-------------- 디렉터리 감시 시작: " + dir);
+      while (true) {
+        WatchKey key;
+        try {
+          key = watcher.take(); // 이벤트가 큐에 들어올 때까지 대기
+        } catch (InterruptedException e) {
+          return e.getMessage();
+        }
 
+        for (WatchEvent<?> event : key.pollEvents()) {
+          WatchEvent.Kind<?> kind = event.kind();
+          Path fileName = (Path) event.context();
+
+          System.out.println("---- 이벤트 종류: " + kind.name() + ", 파일명: " + fileName);
+
+          // 여기에 파일 변경 시 수행할 작업 추가
+          splitImage(imageView);
+          return collectTexts();
+        }
+
+        // 다음 이벤트를 받기 위해 키를 재설정
+        boolean valid = key.reset();
+        if (!valid) {
+          break; // 디렉터리를 더 이상 감시할 수 없을 때 루프 종료
+        }
+      }
       splitImage(imageView);
       return collectTexts();
     } catch (Exception e) {
