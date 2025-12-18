@@ -28,8 +28,4 @@ public class OCRService {
     textArea.setText(resultText);
     return resultText;
   }
-
-  public void close() {
-    paddleOCRService.close();
-  }
 }

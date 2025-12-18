@@ -118,8 +118,4 @@ public class PrimaryController {
       }).start();
     });
   }
-
-  public void close() {
-    ocrService.close();
-  }
 }

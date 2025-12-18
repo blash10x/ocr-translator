@@ -28,10 +28,7 @@ public class App extends Application {
     stage.setScene(scene);
     stage.show();
 
-    stage.setOnCloseRequest(event -> {
-      controller.close();
-      Platform.exit();
-    });
+    stage.setOnCloseRequest(event -> Platform.exit());
   }
 
   public static void main(String[] args) {

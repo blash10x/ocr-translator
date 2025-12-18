@@ -37,15 +37,19 @@ public class PaddleOCRService {
 
     outputImageFile = new File(outputDir, outputImageFilename);
     outputJsonFile = new File(outputDir, outputJsonFilename);
+    watchPath = Paths.get(outputDir);
 
     try {
       process = Runtime.getRuntime().exec(new String[]{"cmd", "/c", command});
       System.out.println("execute a process: " + command);
+
+      Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+        process.children().forEach(ProcessHandle::destroy);
+        process.destroy();
+      }));
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
-
-    watchPath = Paths.get(outputDir);
   }
 
   public String doOCR(ImageView imageView) {
@@ -104,10 +108,5 @@ public class PaddleOCRService {
       sb.append(arrayNode.toPrettyString().replace("\"", "")).append("\n");
     }
     return sb.toString().strip();
-  }
-
-  public void close() {
-    process.children().forEach(ProcessHandle::destroy);
-    process.destroy();
   }
 }
