@@ -13,7 +13,6 @@ import java.nio.file.Paths;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
-import java.util.Properties;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
@@ -22,32 +21,35 @@ import javafx.scene.image.WritableImage;
  * Author: myungsik.sung@gmail.com
  */
 public class PaddleOCRService {
-  private final Path dir = Paths.get(".\\output"); // 예: Paths.get("./sampleDir")
+  private final Path watchPath;
   private final ObjectMapper mapper = new ObjectMapper();
-  private final String command;
-  private final String imagePath;
-  private final String outputImagePath;
-  private final String outputJsonPath;
+  private final String outputDir;
+  private final String outputImageFilename;
+  private final String outputJsonFilename;
 
-  public PaddleOCRService(Properties properties) {
-    command = properties.getProperty("paddleocr.command");
-    imagePath = properties.getProperty("paddleocr.image.path");
-    outputImagePath = properties.getProperty("paddleocr.output.image.path");
-    outputJsonPath = properties.getProperty("paddleocr.output.json.path");
+  public PaddleOCRService() {
+    ConfigLoader configLoader = ConfigLoader.getConfigLoader();
+
+    outputDir = configLoader.getProperty("paddleocr.output.dir");
+    outputImageFilename = configLoader.getProperty("paddleocr.output.image.filename");
+    outputJsonFilename = configLoader.getProperty("paddleocr.output.json.filename");
+    String command = configLoader.getProperty("paddleocr.command");
 
     try {
       Runtime.getRuntime().exec(new String[]{"cmd", "/c", command});
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
+
+    watchPath = Paths.get(outputDir);
   }
 
   public String doOCR(ImageView imageView) {
     try {
       // 감시할 이벤트 종류 등록
       WatchService watcher = FileSystems.getDefault().newWatchService();
-      dir.register(watcher, ENTRY_CREATE, ENTRY_MODIFY);
-      System.out.println("-------------- 디렉터리 감시 시작: " + dir);
+      watchPath.register(watcher, ENTRY_CREATE, ENTRY_MODIFY);
+      System.out.println("-------------- 디렉터리 감시 시작: " + watchPath);
       while (true) {
         WatchKey key;
         try {
@@ -81,7 +83,7 @@ public class PaddleOCRService {
   }
 
   private void splitImage(ImageView imageView) {
-    File file = new File(outputImagePath);
+    File file = new File(outputDir, outputImageFilename);
     Image outputImage = new Image(file.toURI().toString());
     WritableImage writableImage = new WritableImage(
         outputImage.getPixelReader(),
@@ -94,7 +96,7 @@ public class PaddleOCRService {
 
   private String collectTexts() throws IOException {
     StringBuilder sb = new StringBuilder();
-    File jsonFile = new File(outputJsonPath);
+    File jsonFile = new File(outputDir, outputJsonFilename);
     JsonNode rootNode = mapper.readTree(jsonFile);
     JsonNode recTextsNode = rootNode.get("rec_texts");
     for (JsonNode arrayNode : recTextsNode )  {

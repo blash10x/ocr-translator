@@ -1,6 +1,7 @@
 // SecondaryController.java
 package blash10x.ocrtranslator.controller;
 
+import blash10x.ocrtranslator.service.ConfigLoader;
 import java.awt.AWTException;
 import java.awt.Rectangle;
 import java.awt.Robot;
@@ -25,6 +26,8 @@ import lombok.Setter;
  * Author: myungsik.sung@gmail.com
  */
 public class SecondaryController {
+  private final String screenshotDir;
+  private final String screenshotImageFilename;
 
   @FXML
   private HBox titleBar; // 이동 가능한 상단 바
@@ -57,6 +60,13 @@ public class SecondaryController {
   // 창 크기 조절 모드를 위한 Enum
   private enum ResizeMode {
     NONE, NW, N, NE, E, SE, S, SW, W
+  }
+
+  public SecondaryController() {
+    ConfigLoader configLoader = ConfigLoader.getConfigLoader();
+
+    screenshotDir = configLoader.getProperty("screenshot.dir");
+    screenshotImageFilename = configLoader.getProperty("screenshot.image.filename");
   }
 
   @FXML
@@ -236,7 +246,7 @@ public class SecondaryController {
       // Java AWT Robot을 사용하여 화면의 특정 영역을 캡처
       BufferedImage screenCapture = robot.createScreenCapture(new Rectangle(x, y, width, height));
       WritableImage fxImage = SwingFXUtils.toFXImage(screenCapture, null);
-      ImageIO.write(screenCapture, "bmp", new File(".", "screenshot.bmp"));
+      ImageIO.write(screenCapture, "bmp", new File(screenshotDir, screenshotImageFilename));
 
       primaryController.displayCapturedImage(fxImage); // 캡처된 이미지를 Primary Stage로 전달
       System.out.println("스크린샷이 Primary Stage로 전송되었습니다.");

@@ -1,7 +1,6 @@
 // src/main/java/blash10x/ocrtranslator/service/OCRService.java
 package blash10x.ocrtranslator.service;
 
-import java.util.Properties;
 import javafx.scene.control.TextArea;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -15,9 +14,9 @@ public class OCRService {
   private final PaddleOCRService paddleOCRService;
 //  private final TesseractOCRService tesseractOCRService;
 
-  public OCRService(Properties properties) {
-    paddleOCRService = new PaddleOCRService(properties);
-//    tesseractOCRService = new TesseractOCRService(properties);
+  public OCRService() {
+    paddleOCRService = new PaddleOCRService();
+//    tesseractOCRService = new TesseractOCRService();
   }
 
   public String doOCR(Image image, ImageView imageView, TextArea textArea) {

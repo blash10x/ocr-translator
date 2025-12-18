@@ -7,7 +7,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
-import java.util.Properties;
 import java.util.stream.Collectors;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
@@ -38,9 +37,11 @@ public class TesseractOCRService {
     System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
   }
 
-  public TesseractOCRService(Properties properties) {
-    String tessdataPath = properties.getProperty("ocr.tesseract.tessdata.path");
-    String language = properties.getProperty("ocr.tesseract.language");
+  public TesseractOCRService() {
+    ConfigLoader configLoader = ConfigLoader.getConfigLoader();
+
+    String tessdataPath = configLoader.getProperty("ocr.tesseract.tessdata.path");
+    String language = configLoader.getProperty("ocr.tesseract.language");
 
     tesseract = new Tesseract();
     tesseract.setDatapath(tessdataPath); // tessdata 경로 설정
@@ -48,7 +49,7 @@ public class TesseractOCRService {
     tesseract.setOcrEngineMode(TessOcrEngineMode.OEM_LSTM_ONLY);
     tesseract.setPageSegMode(TessPageSegMode.PSM_SINGLE_BLOCK);
 
-    properties.entrySet().stream()
+    configLoader.getProperties().entrySet().stream()
         .filter(entry -> entry.getKey().toString().startsWith("ocr.tesseract.variable"))
         .forEach(entry -> {
           String key = entry.getKey().toString().substring(23);

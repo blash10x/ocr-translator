@@ -14,7 +14,6 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.X509Certificate;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
@@ -34,17 +33,18 @@ public class TranslationN2mtService {
   private final HttpClient client;
   private final ObjectMapper mapper = new ObjectMapper();
 
-  public TranslationN2mtService(Properties properties) {
-    targetUrl = properties.getProperty(PREFIX + "target-url");
+  public TranslationN2mtService() {
+    ConfigLoader configLoader = ConfigLoader.getConfigLoader();
+
+    targetUrl = configLoader.getProperty(PREFIX + "target-url");
 
     StringBuilder formData = new StringBuilder();
-    properties.entrySet().stream()
-        .filter(entry -> entry.getKey().toString().startsWith(PREFIX + "form-data"))
-        .forEach(entry -> formData.append("&")
-            .append(entry.getKey().toString().substring(27))
-            .append("=").append(entry.getValue().toString()));
+    configLoader.startsWith(PREFIX + "form-data").forEach((key, value) ->
+        formData.append("&")
+            .append(key.toString().substring(27))
+            .append("=").append(value.toString()));
     subFormData = formData.toString();
-    resultKey = properties.getProperty("translation.response.resultKey");
+    resultKey = configLoader.getProperty("translation.response.resultKey");
 
     try {
       client = createInsecureHttpClient();

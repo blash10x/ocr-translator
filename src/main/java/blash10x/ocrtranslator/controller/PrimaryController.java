@@ -16,12 +16,14 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import lombok.Setter;
 
 /**
  * Author: myungsik.sung@gmail.com
  */
 public class PrimaryController {
+  private final OCRService ocrService;
+  private final TranslationNsmtService translationNsmtService;
+  private final TranslationN2mtService translationN2mtService;
 
   @FXML
   private ImageView primaryImageView;
@@ -35,13 +37,11 @@ public class PrimaryController {
   private SecondaryController secondaryController;
   private Stage secondaryStage;
 
-  @Setter
-  private OCRService ocrService;
-
-  @Setter
-  private TranslationNsmtService translationNsmtService;
-  @Setter
-  private TranslationN2mtService translationN2mtService;
+  public PrimaryController() {
+    ocrService = new OCRService();
+    translationNsmtService = new TranslationNsmtService();
+    translationN2mtService = new TranslationN2mtService();
+  }
 
   @FXML
   public void initialize() {

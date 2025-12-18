@@ -42,5 +42,3 @@ bin/
 ### Local ###
 src/main/resources/blash10x/ocrtranslator/config.properties
 libs/
-workbench/
-
