@@ -23,20 +23,24 @@ import javafx.scene.image.WritableImage;
 public class PaddleOCRService {
   private final Path watchPath;
   private final ObjectMapper mapper = new ObjectMapper();
-  private final String outputDir;
-  private final String outputImageFilename;
-  private final String outputJsonFilename;
+  private final Process process;
+  private final File outputImageFile;
+  private final File outputJsonFile;
 
   public PaddleOCRService() {
     ConfigLoader configLoader = ConfigLoader.getConfigLoader();
 
-    outputDir = configLoader.getProperty("paddleocr.output.dir");
-    outputImageFilename = configLoader.getProperty("paddleocr.output.image.filename");
-    outputJsonFilename = configLoader.getProperty("paddleocr.output.json.filename");
+    String outputDir = configLoader.getProperty("paddleocr.output.dir");
+    String outputImageFilename = configLoader.getProperty("paddleocr.output.image.filename");
+    String outputJsonFilename = configLoader.getProperty("paddleocr.output.json.filename");
     String command = configLoader.getProperty("paddleocr.command");
 
+    outputImageFile = new File(outputDir, outputImageFilename);
+    outputJsonFile = new File(outputDir, outputJsonFilename);
+
     try {
-      Runtime.getRuntime().exec(new String[]{"cmd", "/c", command});
+      process = Runtime.getRuntime().exec(new String[]{"cmd", "/c", command});
+      System.out.println("execute a process: " + command);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
@@ -75,16 +79,14 @@ public class PaddleOCRService {
           break; // 디렉터리를 더 이상 감시할 수 없을 때 루프 종료
         }
       }
-      splitImage(imageView);
-      return collectTexts();
+      return ""; // unreachable code
     } catch (Exception e) {
       return e.getMessage();
     }
   }
 
   private void splitImage(ImageView imageView) {
-    File file = new File(outputDir, outputImageFilename);
-    Image outputImage = new Image(file.toURI().toString());
+    Image outputImage = new Image(outputImageFile.toURI().toString());
     WritableImage writableImage = new WritableImage(
         outputImage.getPixelReader(),
         0, 0,
@@ -96,12 +98,16 @@ public class PaddleOCRService {
 
   private String collectTexts() throws IOException {
     StringBuilder sb = new StringBuilder();
-    File jsonFile = new File(outputDir, outputJsonFilename);
-    JsonNode rootNode = mapper.readTree(jsonFile);
+    JsonNode rootNode = mapper.readTree(outputJsonFile);
     JsonNode recTextsNode = rootNode.get("rec_texts");
     for (JsonNode arrayNode : recTextsNode )  {
       sb.append(arrayNode.toPrettyString().replace("\"", "")).append("\n");
     }
     return sb.toString().strip();
+  }
+
+  public void close() {
+    process.children().forEach(ProcessHandle::destroy);
+    process.destroy();
   }
 }
