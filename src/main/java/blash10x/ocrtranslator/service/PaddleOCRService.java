@@ -40,8 +40,15 @@ public class PaddleOCRService {
     watchPath = Paths.get(outputDir);
 
     try {
-      process = Runtime.getRuntime().exec(new String[]{"cmd", "/c", command});
-      System.out.println("execute a process: " + command);
+      ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", command);
+
+      // 표준 입출력을 파이프로 설정 (기본값)
+      builder.redirectInput(ProcessBuilder.Redirect.PIPE);
+      builder.redirectOutput(ProcessBuilder.Redirect.INHERIT); // 부모 프로세스(콘솔)로 출력 상속
+      builder.redirectErrorStream(true); // 에러 스트림을 표준 출력으로 병합
+
+      process = builder.start();
+      System.out.println("PaddleOCR has started: " + command);
 
       Runtime.getRuntime().addShutdownHook(new Thread(() -> {
         process.children().forEach(ProcessHandle::destroy);
@@ -57,7 +64,7 @@ public class PaddleOCRService {
       // 감시할 이벤트 종류 등록
       WatchService watcher = FileSystems.getDefault().newWatchService();
       watchPath.register(watcher, ENTRY_CREATE, ENTRY_MODIFY);
-      System.out.println("-------------- 디렉터리 감시 시작: " + watchPath);
+      System.out.println("---- 디렉터리 감시 시작: " + watchPath);
       while (true) {
         WatchKey key;
         try {
@@ -73,8 +80,12 @@ public class PaddleOCRService {
           System.out.println("---- 이벤트 종류: " + kind.name() + ", 파일명: " + fileName);
 
           // 여기에 파일 변경 시 수행할 작업 추가
-          splitImage(imageView);
-          return collectTexts();
+          if (outputImageFile.getName().equals(fileName.toString())) {
+            splitImage(imageView);
+          }
+          if (outputJsonFile.getName().equals(fileName.toString())) {
+            return collectTexts();
+          }
         }
 
         // 다음 이벤트를 받기 위해 키를 재설정
