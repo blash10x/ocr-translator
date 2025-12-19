@@ -2,9 +2,11 @@
 package blash10x.ocrtranslator.controller;
 
 import blash10x.ocrtranslator.App;
+import blash10x.ocrtranslator.service.OCRResult;
 import blash10x.ocrtranslator.service.OCRService;
 import blash10x.ocrtranslator.service.TranslationN2mtService;
 import blash10x.ocrtranslator.service.TranslationNsmtService;
+import java.io.File;
 import java.io.IOException;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -86,7 +88,7 @@ public class PrimaryController {
    * Secondary Stage에서 캡처된 이미지를 받아 ImageView에 표시하고 OCR 및 번역을 수행합니다.
    * @param image 캡처된 JavaFX Image
    */
-  public void displayCapturedImage(Image image) {
+  public void displayCapturedImage(Image image, File imagePath) {
     primaryImageView.setImage(image);
     textArea1.setText("처리 중입니다...");
     textArea2.setText("준비 중입니다...");
@@ -96,21 +98,22 @@ public class PrimaryController {
     Platform.runLater(() -> {
       // 1. OCR 수행 (별도 스레드에서 실행하여 UI 스레드 블로킹 방지)
       new Thread(() -> {
-        String ocrResult = ocrService.doOCR(image, primaryImageView, textArea1);
-        textArea1.setText(ocrResult); // 첫 번째 TextArea에 OCR 결과 표시
-        System.out.println("OCR 결과:\n" + ocrResult);
+        OCRResult ocrResult = ocrService.doOCR(imagePath);
+        String textResult = ocrResult.text();
+        textArea1.setText(textResult); // 첫 번째 TextArea에 OCR 결과 표시
+        System.out.println("OCR 결과:\n" + textResult);
 
         // 2. 번역 수행 (OCR 결과가 나온 후 별도 스레드에서 실행)
         Platform.runLater(() -> {
           new Thread(() -> {
-            String translatedText = translationNsmtService.translate(ocrResult);
+            String translatedText = translationNsmtService.translate(textResult);
             textArea2.setText(translatedText); // 두 번째 TextArea에 번역 결과 표시
             System.out.println("번역 결과(nsmt):\n" + translatedText);
           }).start();
         });
         Platform.runLater(() -> {
           new Thread(() -> {
-            String translatedText = translationN2mtService.translate(ocrResult);
+            String translatedText = translationN2mtService.translate(textResult);
             textArea3.setText(translatedText); // 세 번째 TextArea에 번역 결과 표시
             System.out.println("번역 결과(n2mt):\n" + translatedText);
           }).start();
