@@ -11,6 +11,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
+<?import java.net.URL?>
 
 <BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
   fx:controller="blash10x.ocrtranslator.controller.PrimaryController">
@@ -49,15 +50,26 @@
       </padding>
 <!--      <Label text="Translated Text 1" GridPane.columnIndex="0" GridPane.rowIndex="0"/>-->
       <TextArea fx:id="textArea1" prefRowCount="5" wrapText="true" GridPane.columnIndex="0" GridPane.rowIndex="0" GridPane.hgrow="ALWAYS"
-        style="-fx-font-size: 14px; -fx-font-family: Consolas;"/>
+        style="-fx-font-size: 14px; -fx-font-family: Consolas;">
+        <stylesheets>
+          <URL value="@PaddleOCR.css" />
+        </stylesheets>
+      </TextArea>
 
 <!--      <Label text="Translated Text 2" GridPane.columnIndex="1" GridPane.rowIndex="0"/>-->
       <TextArea fx:id="textArea2" prefRowCount="5" wrapText="true" GridPane.columnIndex="0" GridPane.rowIndex="1" GridPane.hgrow="ALWAYS"
-        style="-fx-font-size: 14px; -fx-font-family: Consolas;"/>
+        style="-fx-font-size: 14px; -fx-font-family: Consolas;">
+        <stylesheets>
+          <URL value="@papago.css" />
+        </stylesheets>
+      </TextArea>
 
 <!--      <Label text="Translated Text 3" GridPane.columnIndex="2" GridPane.rowIndex="0"/>-->
       <TextArea fx:id="textArea3" prefRowCount="5" wrapText="true" GridPane.columnIndex="0" GridPane.rowIndex="2" GridPane.hgrow="ALWAYS"
-        style="-fx-font-size: 14px; -fx-font-family: Consolas;"/>
+        style="-fx-font-size: 14px; -fx-font-family: Consolas;">
+      <stylesheets>
+        <URL value="@papago.css" />
+      </stylesheets>
     </GridPane>
   </bottom>
 </BorderPane>

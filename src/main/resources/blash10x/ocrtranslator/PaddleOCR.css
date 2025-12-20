@@ -1,0 +1,7 @@
+.text-area .content {
+  /* Set the background image for the content region */
+  -fx-background-image: url("PaddleOCR.png");
+  -fx-background-position: center;
+  -fx-background-size: 25%;
+  -fx-background-repeat: no-repeat;
+}

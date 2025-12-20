@@ -22,7 +22,7 @@ public class App extends Application {
   @Override
   public void start(Stage stage) throws IOException {
     FXMLLoader fxmlLoader = new FXMLLoader(App.class.getResource("primary-view.fxml"));
-    Scene scene = new Scene(fxmlLoader.load(), 622, 830);
+    Scene scene = new Scene(fxmlLoader.load(), 622, 870);
     stage.setTitle("OCR Translator");
     stage.setScene(scene);
     stage.show();
