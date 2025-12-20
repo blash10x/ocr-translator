@@ -12,6 +12,7 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -58,7 +59,11 @@ public class PrimaryController {
   @FXML
   private void openCaptureWindow() throws IOException {
     if (secondaryStage != null) {
-      secondaryStage.show();
+      if (secondaryStage.isShowing()) {
+        secondaryController.handleCapture();
+      } else {
+        secondaryStage.show();
+      }
       return;
     }
 
@@ -82,11 +87,6 @@ public class PrimaryController {
     secondaryController.setStage(secondaryStage);
 
     secondaryStage.show();
-  }
-
-  @FXML
-  private void handleCapture() throws IOException {
-    secondaryController.handleCapture();
   }
 
   /**

@@ -5,6 +5,7 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
@@ -29,8 +30,15 @@
           <Insets top="2" right="10" bottom="2" left="10"/>
         </padding>
         <!--      <Label text="OCR Translator"/>-->
-        <Button text="Open Capture Window " onAction="#openCaptureWindow"/>
-        <Button text="Capture Window" onAction="#handleCapture"/>
+        <Button onAction="#openCaptureWindow">
+          <graphic>
+            <ImageView fitHeight="64" fitWidth="64">
+              <image>
+                <Image url="@screenshot.png" />
+              </image>
+            </ImageView>
+          </graphic>
+        </Button>
       </HBox>
     </VBox>
   </center>
