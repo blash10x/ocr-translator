@@ -10,7 +10,7 @@
   fx:controller="blash10x.ocrtranslator.controller.SecondaryController"
   style="-fx-background-color: transparent;"> <!-- Root Pane도 투명하게 설정 -->
   <HBox fx:id="titleBar" alignment="CENTER_RIGHT" spacing="10"
-    style="-fx-background-color: rgba(0, 0, 0, 0.2); -fx-padding: 5;">
+    style="-fx-background-color: rgba(0, 0, 0, 0.2); -fx-padding: 1;">
     <padding>
       <Insets top="5" right="5" bottom="5" left="5"/>
     </padding>

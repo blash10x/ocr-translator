@@ -14,23 +14,24 @@
 <BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
   fx:controller="blash10x.ocrtranslator.controller.PrimaryController">
   <top>
-    <HBox alignment="CENTER" spacing="10" BorderPane.alignment="CENTER">
-      <padding>
-        <Insets top="10" right="10" bottom="10" left="10"/>
-      </padding>
-<!--      <Label text="OCR Translator"/>-->
-      <Button text="Capture Window Open" onAction="#openCaptureWindow"/>
-    </HBox>
   </top>
   <center>
     <VBox alignment="CENTER" spacing="10">
       <padding>
-        <Insets top="10" right="10" bottom="10" left="10"/>
+        <Insets top="10" right="10" bottom="2" left="10"/>
       </padding>
 <!--      <Label text="Captured Image" alignment="CENTER"/>-->
       <StackPane VBox.vgrow="ALWAYS" style="-fx-border-color: silver;">
         <ImageView fx:id="primaryImageView" preserveRatio="true" fitWidth="600" fitHeight="400"/>
       </StackPane>
+      <HBox alignment="CENTER" spacing="10" BorderPane.alignment="CENTER">
+        <padding>
+          <Insets top="2" right="10" bottom="2" left="10"/>
+        </padding>
+        <!--      <Label text="OCR Translator"/>-->
+        <Button text="Open Capture Window " onAction="#openCaptureWindow"/>
+        <Button text="Capture Window" onAction="#handleCapture"/>
+      </HBox>
     </VBox>
   </center>
   <bottom>

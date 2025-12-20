@@ -84,6 +84,11 @@ public class PrimaryController {
     secondaryStage.show();
   }
 
+  @FXML
+  private void handleCapture() throws IOException {
+    secondaryController.handleCapture();
+  }
+
   /**
    * Secondary Stage에서 캡처된 이미지를 받아 ImageView에 표시하고 OCR 및 번역을 수행합니다.
    * @param image 캡처된 JavaFX Image
@@ -91,14 +96,16 @@ public class PrimaryController {
   public void displayCapturedImage(Image image, File imagePath) {
     primaryImageView.setImage(image);
     textArea1.setText("처리 중입니다...");
-    textArea2.setText("준비 중입니다...");
-    textArea3.setText("준비 중입니다...");
+    textArea2.setText("...");
+    textArea3.setText("...");
 
     // UI 업데이트는 JavaFX Application Thread에서 실행
     Platform.runLater(() -> {
       // 1. OCR 수행 (별도 스레드에서 실행하여 UI 스레드 블로킹 방지)
       new Thread(() -> {
         OCRResult ocrResult = ocrService.doOCR(imagePath);
+        primaryImageView.setImage(ocrResult.boxedImage());
+
         String textResult = ocrResult.text();
         textArea1.setText(textResult); // 첫 번째 TextArea에 OCR 결과 표시
         System.out.println("OCR 결과:\n" + textResult);

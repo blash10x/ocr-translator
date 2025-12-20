@@ -201,11 +201,12 @@ public class SecondaryController {
     transparentRegion.setOnMouseClicked(event -> {
       if (event.getClickCount() == 2) {
         handleCapture();
+        event.consume();
       }
     });
 
     rootVBox.setOnKeyPressed(event -> {
-      if (event.getCode() == KeyCode.C && event.isAltDown()) {
+      if (event.isAltDown() && event.getCode() == KeyCode.C) {
         System.out.println("Alt + C pressed! Event handled.");
         handleCapture();
         event.consume();
@@ -220,7 +221,7 @@ public class SecondaryController {
     this.stage.getScene().setFill(null); // Scene의 배경도 null로 설정하여 투명하게
   }
 
-  private void handleCapture() {
+  public void handleCapture() {
     if (stage == null || primaryController == null) {
       System.err.println("Stage or PrimaryController is not set.");
       return;
