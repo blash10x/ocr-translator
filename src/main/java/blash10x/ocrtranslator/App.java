@@ -28,7 +28,7 @@ public class App extends Application {
     stage.show();
 
     Window window = scene.getWindow();
-    stage.setY(window.getY() + 100);
+    stage.setY(window.getY() + 124);
 
     stage.setOnCloseRequest(event -> Platform.exit());
   }

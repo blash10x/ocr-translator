@@ -67,9 +67,10 @@
 <!--      <Label text="Translated Text 3" GridPane.columnIndex="2" GridPane.rowIndex="0"/>-->
       <TextArea fx:id="textArea3" prefRowCount="5" wrapText="true" GridPane.columnIndex="0" GridPane.rowIndex="2" GridPane.hgrow="ALWAYS"
         style="-fx-font-size: 14px; -fx-font-family: Consolas;">
-      <stylesheets>
-        <URL value="@papago.css" />
-      </stylesheets>
+        <stylesheets>
+          <URL value="@gemini.css" />
+        </stylesheets>
+      </TextArea>
     </GridPane>
   </bottom>
 </BorderPane>

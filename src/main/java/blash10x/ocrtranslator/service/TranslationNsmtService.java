@@ -11,19 +11,15 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
-import java.security.cert.X509Certificate;
 import java.util.HashMap;
 import java.util.Map;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
 
 /**
  * 외부 번역 API를 호출하여 텍스트를 번역하는 서비스입니다.
  * <p/>
  * Author: myungsik.sung@gmail.com
  */
-public class TranslationNsmtService {
+public class TranslationNsmtService extends AbstractTranslationService {
   private static final String PREFIX = "translation.nsmt.";
   private final String targetUrl;
   private final String subFormData;
@@ -44,7 +40,7 @@ public class TranslationNsmtService {
             .append(key.toString().substring(27))
             .append("=").append(value.toString()));
     subFormData = formData.toString();
-    resultKey = configLoader.getProperty("translation.response.resultKey");
+    resultKey = configLoader.getProperty(PREFIX + "response.resultKey");
 
     try {
       client = createInsecureHttpClient();
@@ -80,23 +76,5 @@ public class TranslationNsmtService {
     } catch (Exception e) {
       return "Translation Error: " + e.getMessage();
     }
-  }
-
-  // 개발 환경용: SSL 인증서 검증 무시 HttpClient
-  private HttpClient createInsecureHttpClient() throws NoSuchAlgorithmException, KeyManagementException {
-    TrustManager[] trustAllCerts = new TrustManager[]{
-        new X509TrustManager() {
-          public X509Certificate[] getAcceptedIssuers() { return null; }
-          public void checkClientTrusted(X509Certificate[] certs, String authType) {}
-          public void checkServerTrusted(X509Certificate[] certs, String authType) {}
-        }
-    };
-
-    SSLContext sslContext = SSLContext.getInstance("TLS");
-    sslContext.init(null, trustAllCerts, new java.security.SecureRandom());
-
-    return HttpClient.newBuilder()
-        .sslContext(sslContext)
-        .build();
   }
 }

@@ -2,9 +2,9 @@
 package blash10x.ocrtranslator.controller;
 
 import blash10x.ocrtranslator.App;
+import blash10x.ocrtranslator.service.GeminiAIService;
 import blash10x.ocrtranslator.service.OCRResult;
 import blash10x.ocrtranslator.service.OCRService;
-import blash10x.ocrtranslator.service.TranslationN2mtService;
 import blash10x.ocrtranslator.service.TranslationNsmtService;
 import java.io.File;
 import java.io.IOException;
@@ -12,7 +12,6 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -26,7 +25,7 @@ import javafx.stage.Stage;
 public class PrimaryController {
   private final OCRService ocrService;
   private final TranslationNsmtService translationNsmtService;
-  private final TranslationN2mtService translationN2mtService;
+  private final GeminiAIService  geminiAIService;
 
   @FXML
   private ImageView primaryImageView;
@@ -43,7 +42,7 @@ public class PrimaryController {
   public PrimaryController() {
     ocrService = new OCRService();
     translationNsmtService = new TranslationNsmtService();
-    translationN2mtService = new TranslationN2mtService();
+    geminiAIService = new  GeminiAIService();
   }
 
   @FXML
@@ -108,21 +107,21 @@ public class PrimaryController {
 
         String textResult = ocrResult.text();
         textArea1.setText(textResult); // 첫 번째 TextArea에 OCR 결과 표시
-        System.out.println("OCR 결과:\n" + textResult);
+        System.out.println("[OCR 결과]:\n" + textResult);
 
         // 2. 번역 수행 (OCR 결과가 나온 후 별도 스레드에서 실행)
         Platform.runLater(() -> {
           new Thread(() -> {
             String translatedText = translationNsmtService.translate(textResult);
             textArea2.setText(translatedText); // 두 번째 TextArea에 번역 결과 표시
-            System.out.println("번역 결과(nsmt):\n" + translatedText);
+            System.out.println("[번역 결과(nsmt)]:\n" + translatedText);
           }).start();
         });
         Platform.runLater(() -> {
           new Thread(() -> {
-            String translatedText = translationN2mtService.translate(textResult);
+            String translatedText = geminiAIService.translate(textResult);
             textArea3.setText(translatedText); // 세 번째 TextArea에 번역 결과 표시
-            System.out.println("번역 결과(n2mt):\n" + translatedText);
+            System.out.println("[번역 결과(gemini)]:\n" + translatedText);
           }).start();
         });
       }).start();

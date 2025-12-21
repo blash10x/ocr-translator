@@ -3,12 +3,12 @@ package blash10x.ocrtranslator.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.net.URI;
-import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.nio.charset.StandardCharsets;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
@@ -19,34 +19,51 @@ import java.util.Map;
  * <p/>
  * Author: myungsik.sung@gmail.com
  */
-public class TranslationN2mtService extends AbstractTranslationService {
-  private static final String PREFIX = "translation.n2mt.";
+public class GeminiAIService extends AbstractTranslationService {
+  private static final String PREFIX = "translation.gemini-ai.";
   private final String targetUrl;
-  private final String subFormData;
-  private final String resultKey;
+  private final String apiKey;
 
   private final Map<String, String> cache = new HashMap<>();
+
   private final HttpClient client;
   private final ObjectMapper mapper = new ObjectMapper();
 
-  public TranslationN2mtService() {
+  private final JsonNode baseNode;
+  private final ObjectNode partNode;
+
+  public GeminiAIService() {
     ConfigLoader configLoader = ConfigLoader.getConfigLoader();
 
     targetUrl = configLoader.getProperty(PREFIX + "target-url");
-
-    StringBuilder formData = new StringBuilder();
-    configLoader.startsWith(PREFIX + "form-data").forEach((key, value) ->
-        formData.append("&")
-            .append(key.toString().substring(27))
-            .append("=").append(value.toString()));
-    subFormData = formData.toString();
-    resultKey = configLoader.getProperty(PREFIX + "response.resultKey");
+    apiKey =  configLoader.getProperty(PREFIX + "api-key");
 
     try {
       client = createInsecureHttpClient();
     } catch (NoSuchAlgorithmException | KeyManagementException e) {
       throw new RuntimeException(e);
     }
+
+    baseNode = createBaseNode();
+    partNode = (ObjectNode) baseNode.findValue("parts").get(0);
+  }
+
+  private JsonNode createBaseNode() {
+    ObjectNode objectNode = mapper.createObjectNode();
+
+    ArrayNode contentsNode = mapper.createArrayNode();
+    objectNode.set("contents",contentsNode);
+    ObjectNode contentNode = mapper.createObjectNode();
+    contentsNode.add(contentNode);
+
+    ArrayNode partsNode = mapper.createArrayNode();
+    contentNode.set("parts" ,partsNode);
+
+    ObjectNode partNode = mapper.createObjectNode();
+    partsNode.add(partNode);
+
+    partNode.put("text","How does AI work?");
+    return objectNode;
   }
 
   public String translate(String textToTranslate) {
@@ -54,25 +71,27 @@ public class TranslationN2mtService extends AbstractTranslationService {
   }
 
   private String _translate(String textToTranslate) {
+    String text = """
+        일본어 '
+        """ + textToTranslate + """
+        '을 한국어로 번역
+        원문 줄바꿈을 번역문 줄바꿈에 적용하여 추천 번역만 간결하게 응답.
+        """;
+    partNode.put("text", text);
+
     try {
-      // Form-Data 인코딩
-      String formData = "text=" + URLEncoder.encode(textToTranslate, StandardCharsets.UTF_8) + subFormData;
       HttpRequest request = HttpRequest.newBuilder()
           .uri(URI.create(targetUrl))
-          .header("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8")
-          .header("Accept", "application/json")
-          .POST(HttpRequest.BodyPublishers.ofString(formData))
+          .header("Content-Type", "application/json")
+          .header("x-goog-api-key", apiKey)
+          .POST(HttpRequest.BodyPublishers.ofString(baseNode.toString()))
           .build();
 
       HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-      // "translatedText" 필드 추출
       JsonNode rootNode = mapper.readTree(response.body()); // JSON 파싱
-      if (rootNode.has(resultKey)) {
-        return rootNode.get(resultKey).asText();
-      } else {
-        return "Error: No translatedText in response";
-      }
+      JsonNode textNode = rootNode.findValue("text");
+      return textNode != null ? textNode.asText() : "Not found text node";
     } catch (Exception e) {
       return "Translation Error: " + e.getMessage();
     }
