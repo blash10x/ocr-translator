@@ -30,7 +30,7 @@ public class PaddleOCRService extends AbstractProcessService {
   private final String resultKey;
 
   public PaddleOCRService() {
-    super("PaddleOCRService");
+    super("paddleocr");
     ConfigLoader configLoader = ConfigLoader.getConfigLoader();
 
     String outputDir = configLoader.getProperty("paddleocr.output.dir");

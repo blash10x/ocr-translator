@@ -49,12 +49,10 @@ public class TesseractOCRService {
     tesseract.setOcrEngineMode(TessOcrEngineMode.OEM_LSTM_ONLY);
     tesseract.setPageSegMode(TessPageSegMode.PSM_SINGLE_BLOCK);
 
-    configLoader.getProperties().entrySet().stream()
-        .filter(entry -> entry.getKey().toString().startsWith("ocr.tesseract.variable"))
-        .forEach(entry -> {
-          String key = entry.getKey().toString().substring(23);
-          String value = entry.getValue().toString();
-          tesseract.setVariable(key, value);
+    configLoader.startsWith("ocr.tesseract.variable")
+        .forEach((key, value) -> {
+          String _key = key.toString().substring(23);
+          tesseract.setVariable(_key, value.toString());
         });
   }
 

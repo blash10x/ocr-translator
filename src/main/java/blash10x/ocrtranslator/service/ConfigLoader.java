@@ -9,15 +9,12 @@ import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import lombok.Getter;
 
 /**
  * Author: myungsik.sung@gmail.com
  */
 public class ConfigLoader {
   private static final Pattern pattern = Pattern.compile("\\$\\{([^}]+)}");
-
-  @Getter
   private final Properties properties = new Properties();
 
   public static ConfigLoader getConfigLoader() {

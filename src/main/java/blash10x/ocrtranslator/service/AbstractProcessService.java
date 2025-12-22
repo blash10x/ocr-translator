@@ -36,7 +36,7 @@ public abstract class AbstractProcessService {
 
       Runtime.getRuntime().addShutdownHook(new Thread(() -> {
         if (!process.isAlive()) {
-          System.out.println("Process has been shut down");
+          System.out.printf("%s has already been terminated.\n", processName);
           return;
         }
         close();
@@ -52,13 +52,13 @@ public abstract class AbstractProcessService {
       writer.write("q\n");
       writer.flush(); // 버퍼 비우기 (중요: 데드락 발생 가능성)
 
-      process.children().forEach(ProcessHandle::destroy);
-      process.destroy();
-
       int exitCode = process.waitFor();
       System.out.printf("%s has closed: exitCode=%d\n", processName, exitCode);
     } catch (Exception e) {
       throw new RuntimeException(e);
+    } finally {
+      process.children().forEach(ProcessHandle::destroy);
+      process.destroy();
     }
   }
 }

@@ -17,7 +17,6 @@ import java.util.Map;
  * Author: myungsik.sung@gmail.com
  */
 public class GeminiAIService extends AbstractTranslationService {
-  private static final String PREFIX = "translation.gemini-ai.";
   private final Map<String, String> cache = new HashMap<>();
   private final String model;
   private final Client client;
@@ -26,9 +25,9 @@ public class GeminiAIService extends AbstractTranslationService {
   public GeminiAIService() {
     ConfigLoader configLoader = ConfigLoader.getConfigLoader();
 
-    model =  configLoader.getProperty(PREFIX + "model");
+    model =  configLoader.getProperty("translation.gemini-ai.model-name");
 
-    String apiKey =  configLoader.getProperty(PREFIX + "api-key");
+    String apiKey =  configLoader.getProperty("translation.gemini-ai.api-key");
     client = Client.builder()
         .apiKey(apiKey)
         //.vertexAI(true)
