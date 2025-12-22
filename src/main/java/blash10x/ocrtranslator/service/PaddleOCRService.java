@@ -22,45 +22,27 @@ import javafx.scene.image.WritableImage;
 /**
  * Author: myungsik.sung@gmail.com
  */
-public class PaddleOCRService {
+public class PaddleOCRService extends AbstractProcessService {
   private final ObjectMapper mapper = new ObjectMapper();
-  private final Process process;
   private final Path watchPath;
   private final File outputImageFile;
   private final File outputJsonFile;
   private final String resultKey;
 
   public PaddleOCRService() {
+    super("PaddleOCRService");
     ConfigLoader configLoader = ConfigLoader.getConfigLoader();
 
     String outputDir = configLoader.getProperty("paddleocr.output.dir");
     String outputImageFilename = configLoader.getProperty("paddleocr.output.image.filename");
     String outputJsonFilename = configLoader.getProperty("paddleocr.output.json.filename");
     String command = configLoader.getProperty("paddleocr.command");
+    start(command, ProcessBuilder.Redirect.INHERIT);
 
     resultKey = configLoader.getProperty("paddleocr.output.json.resultKey");
     watchPath = Paths.get(outputDir);
     outputImageFile = new File(outputDir, outputImageFilename);
     outputJsonFile = new File(outputDir, outputJsonFilename);
-
-    try {
-      ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", command);
-
-      // 표준 입출력을 파이프로 설정 (기본값)
-      builder.redirectInput(ProcessBuilder.Redirect.PIPE);
-      builder.redirectOutput(ProcessBuilder.Redirect.INHERIT); // 부모 프로세스(콘솔)로 출력 상속
-      builder.redirectErrorStream(true); // 에러 스트림을 표준 출력으로 병합
-
-      process = builder.start();
-      System.out.println("PaddleOCR has started: " + command);
-
-      Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-        process.children().forEach(ProcessHandle::destroy);
-        process.destroy();
-      }));
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
   }
 
   public OCRResult doOCR(File imagePath) {

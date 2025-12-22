@@ -2,7 +2,7 @@
 package blash10x.ocrtranslator.controller;
 
 import blash10x.ocrtranslator.App;
-import blash10x.ocrtranslator.service.GeminiAIService;
+import blash10x.ocrtranslator.service.GeminiWebApiService;
 import blash10x.ocrtranslator.service.OCRResult;
 import blash10x.ocrtranslator.service.OCRService;
 import blash10x.ocrtranslator.service.TranslationNsmtService;
@@ -25,7 +25,7 @@ import javafx.stage.Stage;
 public class PrimaryController {
   private final OCRService ocrService;
   private final TranslationNsmtService translationNsmtService;
-  private final GeminiAIService  geminiAIService;
+  private final GeminiWebApiService geminiWebApiService;
 
   @FXML
   private ImageView primaryImageView;
@@ -42,7 +42,7 @@ public class PrimaryController {
   public PrimaryController() {
     ocrService = new OCRService();
     translationNsmtService = new TranslationNsmtService();
-    geminiAIService = new  GeminiAIService();
+    geminiWebApiService = new GeminiWebApiService();
   }
 
   @FXML
@@ -53,6 +53,12 @@ public class PrimaryController {
     // CSS 예시: .clippable-textarea { -fx-background-color: lightgray; -fx-border-color: darkgray; }
     textArea1.getStyleClass().add("clippable-textarea");
     textArea2.getStyleClass().add("clippable-textarea");
+  }
+
+  public void close() {
+    ocrService.close();
+    geminiWebApiService.close();
+    Platform.exit();
   }
 
   @FXML
@@ -119,7 +125,7 @@ public class PrimaryController {
         });
         Platform.runLater(() -> {
           new Thread(() -> {
-            String translatedText = geminiAIService.translate(textResult);
+            String translatedText = geminiWebApiService.translate(textResult);
             textArea3.setText(translatedText); // 세 번째 TextArea에 번역 결과 표시
             System.out.println("[번역 결과(gemini)]:\n" + translatedText);
           }).start();

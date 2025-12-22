@@ -18,4 +18,8 @@ public class OCRService {
   public OCRResult doOCR(File imagePath) {
     return paddleOCRService.doOCR(imagePath);
   }
+
+  public void close() {
+    paddleOCRService.close();
+  }
 }

@@ -1,9 +1,9 @@
 // src/main/java/blash10x/ocrtranslator/App.java
 package blash10x.ocrtranslator;
 
+import blash10x.ocrtranslator.controller.PrimaryController;
 import java.io.IOException;
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
@@ -23,6 +23,7 @@ public class App extends Application {
   public void start(Stage stage) throws IOException {
     FXMLLoader fxmlLoader = new FXMLLoader(App.class.getResource("primary-view.fxml"));
     Scene scene = new Scene(fxmlLoader.load(), 622, 870);
+    PrimaryController primaryController = fxmlLoader.getController();
     stage.setTitle("OCR Translator");
     stage.setScene(scene);
     stage.show();
@@ -30,7 +31,7 @@ public class App extends Application {
     Window window = scene.getWindow();
     stage.setY(window.getY() + 124);
 
-    stage.setOnCloseRequest(event -> Platform.exit());
+    stage.setOnCloseRequest(event -> primaryController.close());
   }
 
   public static void main(String[] args) {

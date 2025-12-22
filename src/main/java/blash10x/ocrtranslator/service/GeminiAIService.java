@@ -61,7 +61,7 @@ public class GeminiAIService extends AbstractTranslationService {
   }
 
   private String _translate(String textToTranslate) {
-    String text = "일본어:\n" + textToTranslate + "\n한국어로 번역.\n"
+    String text = "일본어:\n" + textToTranslate + "\n\n한국어로 번역.\n"
         + "원문의 줄바꿈을 번역문의 줄바꿈에도 동일하게 적용.\n"
         + "부가 설명없이 번역 결과만 응답.";
     GenerateContentResponse response =
