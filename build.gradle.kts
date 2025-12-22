@@ -38,6 +38,9 @@ javafx {
 dependencies {
     implementation(fileTree("libs") { include("*.jar") })
     implementation("net.sourceforge.tess4j:tess4j:5.16.0")
+    implementation("com.google.genai:google-genai:1.32.0") {
+        exclude(group = "com.google.code.findbugs", module = "jsr305")
+    }
     implementation("com.fasterxml.jackson.core:jackson-databind:2.20.1")
     implementation("org.projectlombok:lombok:1.18.42")
 

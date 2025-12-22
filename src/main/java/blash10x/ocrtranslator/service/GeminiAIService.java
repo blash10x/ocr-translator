@@ -1,16 +1,13 @@
 // src/main/java/blash10x/ocrtranslator/service/TranslationService.java
 package blash10x.ocrtranslator.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
+import com.google.common.collect.ImmutableList;
+import com.google.genai.Client;
+import com.google.genai.types.GenerateContentConfig;
+import com.google.genai.types.GenerateContentResponse;
+import com.google.genai.types.HarmBlockThreshold;
+import com.google.genai.types.HarmCategory;
+import com.google.genai.types.SafetySetting;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,49 +18,42 @@ import java.util.Map;
  */
 public class GeminiAIService extends AbstractTranslationService {
   private static final String PREFIX = "translation.gemini-ai.";
-  private final String targetUrl;
-  private final String apiKey;
-
   private final Map<String, String> cache = new HashMap<>();
-
-  private final HttpClient client;
-  private final ObjectMapper mapper = new ObjectMapper();
-
-  private final JsonNode baseNode;
-  private final ObjectNode partNode;
+  private final String model;
+  private final Client client;
+  private final GenerateContentConfig generateContentConfig;
 
   public GeminiAIService() {
     ConfigLoader configLoader = ConfigLoader.getConfigLoader();
 
-    targetUrl = configLoader.getProperty(PREFIX + "target-url");
-    apiKey =  configLoader.getProperty(PREFIX + "api-key");
+    model =  configLoader.getProperty(PREFIX + "model");
 
-    try {
-      client = createInsecureHttpClient();
-    } catch (NoSuchAlgorithmException | KeyManagementException e) {
-      throw new RuntimeException(e);
-    }
+    String apiKey =  configLoader.getProperty(PREFIX + "api-key");
+    client = Client.builder()
+        .apiKey(apiKey)
+        //.vertexAI(true)
+        .build();
 
-    baseNode = createBaseNode();
-    partNode = (ObjectNode) baseNode.findValue("parts").get(0);
-  }
+    ImmutableList<SafetySetting> safetySettings =
+        ImmutableList.of(
+            SafetySetting.builder()
+                .category(HarmCategory.Known.HARM_CATEGORY_SEXUALLY_EXPLICIT)
+                .threshold(HarmBlockThreshold.Known.BLOCK_ONLY_HIGH)
+                .build(),
+            SafetySetting.builder()
+                .category(HarmCategory.Known.HARM_CATEGORY_HATE_SPEECH)
+                .threshold(HarmBlockThreshold.Known.BLOCK_ONLY_HIGH)
+                .build(),
+            SafetySetting.builder()
+                .category(HarmCategory.Known.HARM_CATEGORY_DANGEROUS_CONTENT)
+                .threshold(HarmBlockThreshold.Known.BLOCK_NONE)
+                .build());
 
-  private JsonNode createBaseNode() {
-    ObjectNode objectNode = mapper.createObjectNode();
-
-    ArrayNode contentsNode = mapper.createArrayNode();
-    objectNode.set("contents",contentsNode);
-    ObjectNode contentNode = mapper.createObjectNode();
-    contentsNode.add(contentNode);
-
-    ArrayNode partsNode = mapper.createArrayNode();
-    contentNode.set("parts" ,partsNode);
-
-    ObjectNode partNode = mapper.createObjectNode();
-    partsNode.add(partNode);
-
-    partNode.put("text","How does AI work?");
-    return objectNode;
+    generateContentConfig = GenerateContentConfig.builder()
+        .temperature(0.5f)
+        .topP(0.8f)
+        .safetySettings(safetySettings)
+        .build();
   }
 
   public String translate(String textToTranslate) {
@@ -71,29 +61,12 @@ public class GeminiAIService extends AbstractTranslationService {
   }
 
   private String _translate(String textToTranslate) {
-    String text = """
-        일본어 '
-        """ + textToTranslate + """
-        '을 한국어로 번역
-        원문 줄바꿈을 번역문 줄바꿈에 적용하여 추천 번역만 간결하게 응답.
-        """;
-    partNode.put("text", text);
+    String text = "일본어:\n" + textToTranslate + "\n한국어로 번역.\n"
+        + "원문의 줄바꿈을 번역문의 줄바꿈에도 동일하게 적용.\n"
+        + "부가 설명없이 번역 결과만 응답.";
+    GenerateContentResponse response =
+        client.models.generateContent(model, text, generateContentConfig);
 
-    try {
-      HttpRequest request = HttpRequest.newBuilder()
-          .uri(URI.create(targetUrl))
-          .header("Content-Type", "application/json")
-          .header("x-goog-api-key", apiKey)
-          .POST(HttpRequest.BodyPublishers.ofString(baseNode.toString()))
-          .build();
-
-      HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-      JsonNode rootNode = mapper.readTree(response.body()); // JSON 파싱
-      JsonNode textNode = rootNode.findValue("text");
-      return textNode != null ? textNode.asText() : "Not found text node";
-    } catch (Exception e) {
-      return "Translation Error: " + e.getMessage();
-    }
+    return response.text();
   }
 }
