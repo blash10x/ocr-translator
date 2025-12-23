@@ -1,11 +1,15 @@
 // src/main/java/blash10x/ocrtranslator/controller/PrimaryController.java
 package blash10x.ocrtranslator.controller;
 
+import static blash10x.ocrtranslator.util.ConsoleColor.BLUE;
+import static blash10x.ocrtranslator.util.ConsoleColor.CYAN;
+import static blash10x.ocrtranslator.util.ConsoleColor.RESET;
+
 import blash10x.ocrtranslator.App;
 import blash10x.ocrtranslator.service.GeminiWebApiService;
 import blash10x.ocrtranslator.service.OCRResult;
 import blash10x.ocrtranslator.service.OCRService;
-import blash10x.ocrtranslator.service.TranslationNsmtService;
+import blash10x.ocrtranslator.service.TranslationN2mtService;
 import java.io.File;
 import java.io.IOException;
 import javafx.application.Platform;
@@ -24,7 +28,7 @@ import javafx.stage.Stage;
  */
 public class PrimaryController {
   private final OCRService ocrService;
-  private final TranslationNsmtService translationNsmtService;
+  private final TranslationN2mtService translationN2mtService;
   private final GeminiWebApiService geminiWebApiService;
 
   @FXML
@@ -41,7 +45,7 @@ public class PrimaryController {
 
   public PrimaryController() {
     ocrService = new OCRService();
-    translationNsmtService = new TranslationNsmtService();
+    translationN2mtService = new TranslationN2mtService();
     geminiWebApiService = new GeminiWebApiService();
   }
 
@@ -94,6 +98,28 @@ public class PrimaryController {
     secondaryStage.show();
   }
 
+  @FXML
+  private void translate() {
+    String textResult = textArea1.getText();
+    System.out.println("[OCR]:\n" + CYAN + textResult + RESET);
+
+    // 2. 번역 수행 (OCR 결과가 나온 후 별도 스레드에서 실행)
+    Platform.runLater(() -> {
+      new Thread(() -> {
+        String translatedText = translationN2mtService.translate(textResult);
+        textArea2.setText(translatedText); // 두 번째 TextArea에 번역 결과 표시
+        System.out.println("[번역 결과(n2mt)]:\n" + BLUE + translatedText + RESET);
+      }).start();
+    });
+    Platform.runLater(() -> {
+      new Thread(() -> {
+        String translatedText = geminiWebApiService.translate(textResult);
+        textArea3.setText(translatedText); // 세 번째 TextArea에 번역 결과 표시
+        System.out.println("[번역 결과(gemini)]:\n" + BLUE + translatedText + RESET);
+      }).start();
+    });
+  }
+
   /**
    * Secondary Stage에서 캡처된 이미지를 받아 ImageView에 표시하고 OCR 및 번역을 수행합니다.
    * @param image 캡처된 JavaFX Image
@@ -113,23 +139,9 @@ public class PrimaryController {
 
         String textResult = ocrResult.text();
         textArea1.setText(textResult); // 첫 번째 TextArea에 OCR 결과 표시
-        System.out.println("[OCR 결과]:\n" + textResult);
+        System.out.println("[OCR 결과]:\n" + CYAN + textResult + RESET);
 
-        // 2. 번역 수행 (OCR 결과가 나온 후 별도 스레드에서 실행)
-        Platform.runLater(() -> {
-          new Thread(() -> {
-            String translatedText = translationNsmtService.translate(textResult);
-            textArea2.setText(translatedText); // 두 번째 TextArea에 번역 결과 표시
-            System.out.println("[번역 결과(nsmt)]:\n" + translatedText);
-          }).start();
-        });
-        Platform.runLater(() -> {
-          new Thread(() -> {
-            String translatedText = geminiWebApiService.translate(textResult);
-            textArea3.setText(translatedText); // 세 번째 TextArea에 번역 결과 표시
-            System.out.println("[번역 결과(gemini)]:\n" + translatedText);
-          }).start();
-        });
+        translate();
       }).start();
     });
   }

@@ -15,7 +15,7 @@ import java.util.function.Consumer;
  * Author: myungsik.sung@gmail.com
  */
 public abstract class AbstractProcessService {
-  private static final ExecutorService executorService = Executors.newCachedThreadPool();
+  private static final ExecutorService executorService = Executors.newVirtualThreadPerTaskExecutor();
   protected final ConfigLoader configLoader;
   private final String processName;
   private Process process;
@@ -44,7 +44,7 @@ public abstract class AbstractProcessService {
       System.out.printf("%s has started: %s%n", processName, command);
 
       Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-        executorService.close();
+        executorService.shutdown();
 
         if (!process.isAlive()) {
           System.out.printf("%s has already been terminated.%n", processName);
@@ -67,19 +67,13 @@ public abstract class AbstractProcessService {
   }
 
   public void close() {
-    executorService.close();
-
     writeToProcess("q\n"); // termination command: 'q'
     try {
       writer.close();
-
       int exitCode = process.waitFor();
       System.out.printf("%s has closed: exitCode=%d%n", processName, exitCode);
     } catch (Exception e) {
       throw new RuntimeException(e);
-    } finally {
-      process.descendants().forEach(ProcessHandle::destroy);
-      process.destroy();
     }
   }
 
@@ -101,6 +95,8 @@ public abstract class AbstractProcessService {
         }
       } catch (Exception e) {
         throw new RuntimeException(e);
+      } finally {
+        System.out.printf("Exit OutputHandler: %s%n", processName);
       }
     }
   }

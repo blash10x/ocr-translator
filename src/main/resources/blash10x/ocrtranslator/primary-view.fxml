@@ -34,9 +34,14 @@
         <Button onAction="#openCaptureWindow">
           <graphic>
             <ImageView fitHeight="64" fitWidth="64">
-              <image>
-                <Image url="@screenshot.png" />
-              </image>
+              <Image url="@screenshot.png"/>
+            </ImageView>
+          </graphic>
+        </Button>
+        <Button onAction="#translate">
+          <graphic>
+            <ImageView fitHeight="64" fitWidth="64">
+              <Image url="@translator.png"/>
             </ImageView>
           </graphic>
         </Button>
