@@ -28,18 +28,18 @@ public class PaddleOCRService extends AbstractProcessService {
 
   public PaddleOCRService() {
     super("paddleocr");
-    ConfigLoader configLoader = ConfigLoader.getConfigLoader();
 
     String outputDir = configLoader.getProperty("paddleocr.output.dir");
     String outputImageFilename = configLoader.getProperty("paddleocr.output.image.filename");
     String outputJsonFilename = configLoader.getProperty("paddleocr.output.json.filename");
     String command = configLoader.getProperty("paddleocr.command");
-    start(command, ProcessBuilder.Redirect.INHERIT);
 
     resultKey = configLoader.getProperty("paddleocr.output.json.resultKey");
     watchPath = Paths.get(outputDir);
     outputImageFile = new File(outputDir, outputImageFilename);
     outputJsonFile = new File(outputDir, outputJsonFilename);
+
+    start(command);
   }
 
   public OCRResult doOCR(File imagePath) {

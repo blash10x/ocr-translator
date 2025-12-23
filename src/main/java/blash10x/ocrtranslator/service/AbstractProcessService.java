@@ -1,19 +1,28 @@
 package blash10x.ocrtranslator.service;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.OutputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.lang.ProcessBuilder.Redirect;
+import java.nio.charset.StandardCharsets;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.function.Consumer;
 
 /**
  * Author: myungsik.sung@gmail.com
  */
 public abstract class AbstractProcessService {
-  protected String processName;
-  protected Process process;
+  private static final ExecutorService executorService = Executors.newCachedThreadPool();
+  protected final ConfigLoader configLoader;
+  private final String processName;
+  private Process process;
+  private BufferedWriter writer;
 
   protected AbstractProcessService(String processName) {
+    configLoader = ConfigLoader.getConfigLoader();
     this.processName = processName;
   }
 
@@ -21,20 +30,22 @@ public abstract class AbstractProcessService {
     start(command, null);
   }
 
-  protected void start(String command, Redirect outputRedirect) {
+  protected void start(String command, Consumer<String> outputConsumer) {
     try {
       ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", command);
 
       //builder.redirectInput(ProcessBuilder.Redirect.PIPE); // Default: Redirect.PIPE
-      if (outputRedirect != null) {
-        builder.redirectOutput(outputRedirect); // Default: Redirect.PIPE
-      }
+      //builder.redirectOutput(ProcessBuilder.Redirect.PIPE); // Default: Redirect.PIPE
       builder.redirectErrorStream(true);
 
       process = builder.start();
+      executorService.execute(new OutputHandler(outputConsumer));
+      writer = new BufferedWriter(new OutputStreamWriter(process.getOutputStream())); // get stream for input to the process
       System.out.printf("%s has started: %s%n", processName, command);
 
       Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+        executorService.close();
+
         if (!process.isAlive()) {
           System.out.printf("%s has already been terminated.%n", processName);
           return;
@@ -47,29 +58,31 @@ public abstract class AbstractProcessService {
   }
 
   protected void writeToProcess(String str) {
-    OutputStream pos = process.getOutputStream(); // 프로세스의 입력 스트림 가져오기
-    BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(pos));
     try {
       writer.write(str);
-      writer.flush(); // 버퍼 비우기 (중요: 데드락 발생 가능성)
+      writer.flush(); // Important: Deadlock Prevention
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
   }
 
   public void close() {
-    writeToProcess("q\n");
+    executorService.close();
+
+    writeToProcess("q\n"); // termination command: 'q'
     try {
+      writer.close();
+
       int exitCode = process.waitFor();
       System.out.printf("%s has closed: exitCode=%d%n", processName, exitCode);
     } catch (Exception e) {
       throw new RuntimeException(e);
     } finally {
-      process.children().forEach(ProcessHandle::destroy);
+      process.descendants().forEach(ProcessHandle::destroy);
       process.destroy();
     }
   }
-/*
+
   private class OutputHandler implements Runnable {
     private final Consumer<String> consumer;
 
@@ -81,7 +94,7 @@ public abstract class AbstractProcessService {
       InputStream pis = process.getInputStream();
       try (BufferedReader reader = new BufferedReader(new InputStreamReader(pis, StandardCharsets.UTF_8))) {
         for (String line; (line = reader.readLine()) != null; ) {
-          System.out.printf("[%-11s] %s%n", processName, line);
+          System.out.printf("[%-13s] %s%n", processName, line);
           if (consumer != null) {
             consumer.accept(line);
           }
@@ -90,5 +103,5 @@ public abstract class AbstractProcessService {
         throw new RuntimeException(e);
       }
     }
-  }*/
+  }
 }
