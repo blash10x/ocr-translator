@@ -1,10 +1,7 @@
 package blash10x.ocrtranslator.service;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
@@ -32,12 +29,9 @@ public class GeminiWebApiService extends AbstractProcessService {
   }
 
   private String _translate(String textToTranslate) {
-    OutputStream os = process.getOutputStream(); // 프로세스의 입력 스트림 가져오기
-    BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os));
     try {
       resultReference.set(new StringBuilder());
-      writer.write(textToTranslate + "\nEOF\n");
-      writer.flush(); // 버퍼 비우기 (중요: 데드락 발생 가능성)
+      writeToProcess(textToTranslate + "\nEOF\n");
 
       synchronized (resultHandler) {
         resultHandler.wait();

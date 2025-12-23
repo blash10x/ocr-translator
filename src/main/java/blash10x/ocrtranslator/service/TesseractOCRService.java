@@ -91,7 +91,7 @@ public class TesseractOCRService {
       float confidence = word.getConfidence();
 
       System.out.printf(
-          "Word: '%s' | Location: [x:%d, y:%d, w:%d, h:%d] | Confidence: %.2f\n",
+          "Word: '%s' | Location: [x:%d, y:%d, w:%d, h:%d] | Confidence: %.2f%n",
           wordText,
           rect.x,
           rect.y,

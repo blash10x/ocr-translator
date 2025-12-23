@@ -5,11 +5,8 @@ import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -46,14 +43,7 @@ public class PaddleOCRService extends AbstractProcessService {
   }
 
   public OCRResult doOCR(File imagePath) {
-    OutputStream os = process.getOutputStream(); // 프로세스의 입력 스트림 가져오기
-    BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os));
-    try {
-      writer.write(imagePath + "\n");
-      writer.flush(); // 버퍼 비우기 (중요: 데드락 발생 가능성)
-    } catch (IOException e) {
-      return new OCRResult(e.toString(), null);
-    }
+    writeToProcess(imagePath + "\n");
 
     String resultText = null;
     Image boxedImage = null;

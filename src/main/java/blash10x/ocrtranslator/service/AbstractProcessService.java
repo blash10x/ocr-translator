@@ -32,11 +32,11 @@ public abstract class AbstractProcessService {
       builder.redirectErrorStream(true);
 
       process = builder.start();
-      System.out.printf("%s has started: %s", processName, command);
+      System.out.printf("%s has started: %s%n", processName, command);
 
       Runtime.getRuntime().addShutdownHook(new Thread(() -> {
         if (!process.isAlive()) {
-          System.out.printf("%s has already been terminated.\n", processName);
+          System.out.printf("%s has already been terminated.%n", processName);
           return;
         }
         close();
@@ -46,14 +46,22 @@ public abstract class AbstractProcessService {
     }
   }
 
-  public void close() {
-    OutputStream os = process.getOutputStream(); // 프로세스의 입력 스트림 가져오기
-    try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os))) {
-      writer.write("q\n");
+  protected void writeToProcess(String str) {
+    OutputStream pos = process.getOutputStream(); // 프로세스의 입력 스트림 가져오기
+    BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(pos));
+    try {
+      writer.write(str);
       writer.flush(); // 버퍼 비우기 (중요: 데드락 발생 가능성)
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+  }
 
+  public void close() {
+    writeToProcess("q\n");
+    try {
       int exitCode = process.waitFor();
-      System.out.printf("%s has closed: exitCode=%d\n", processName, exitCode);
+      System.out.printf("%s has closed: exitCode=%d%n", processName, exitCode);
     } catch (Exception e) {
       throw new RuntimeException(e);
     } finally {
@@ -61,4 +69,26 @@ public abstract class AbstractProcessService {
       process.destroy();
     }
   }
+/*
+  private class OutputHandler implements Runnable {
+    private final Consumer<String> consumer;
+
+    public OutputHandler(Consumer<String> consumer) {
+      this.consumer = consumer;
+    }
+
+    public void run() {
+      InputStream pis = process.getInputStream();
+      try (BufferedReader reader = new BufferedReader(new InputStreamReader(pis, StandardCharsets.UTF_8))) {
+        for (String line; (line = reader.readLine()) != null; ) {
+          System.out.printf("[%-11s] %s%n", processName, line);
+          if (consumer != null) {
+            consumer.accept(line);
+          }
+        }
+      } catch (Exception e) {
+        throw new RuntimeException(e);
+      }
+    }
+  }*/
 }
