@@ -6,6 +6,7 @@ module blash10x.ocrtranslator {
   requires java.desktop;
   requires java.net.http;
   requires com.fasterxml.jackson.databind;
+  requires com.fasterxml.jackson.datatype.jsr310;
   requires com.google.common;
   requires com.google.genai;
   requires opencv;

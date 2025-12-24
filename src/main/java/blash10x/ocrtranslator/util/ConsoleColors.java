@@ -3,7 +3,7 @@ package blash10x.ocrtranslator.util;
 /**
  * Author: myungsik.sung@gmail.com
  */
-public class ConsoleColor {
+public class ConsoleColors {
   // ANSI escape code constants for text colors
   public static final String RESET = "\u001B[0m";
   public static final String RED = "\u001B[31m";

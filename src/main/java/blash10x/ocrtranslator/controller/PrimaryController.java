@@ -1,9 +1,9 @@
 // src/main/java/blash10x/ocrtranslator/controller/PrimaryController.java
 package blash10x.ocrtranslator.controller;
 
-import static blash10x.ocrtranslator.util.ConsoleColor.BLUE;
-import static blash10x.ocrtranslator.util.ConsoleColor.CYAN;
-import static blash10x.ocrtranslator.util.ConsoleColor.RESET;
+import static blash10x.ocrtranslator.util.ConsoleColors.BLUE;
+import static blash10x.ocrtranslator.util.ConsoleColors.CYAN;
+import static blash10x.ocrtranslator.util.ConsoleColors.RESET;
 
 import blash10x.ocrtranslator.App;
 import blash10x.ocrtranslator.service.GeminiWebApiService;
