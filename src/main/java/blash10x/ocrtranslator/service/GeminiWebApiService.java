@@ -1,11 +1,8 @@
 package blash10x.ocrtranslator.service;
 
-import blash10x.ocrtranslator.util.JsonNodes;
+import com.fasterxml.jackson.databind.JsonNode;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Consumer;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 /**
  * Author: myungsik.sung@gmail.com
@@ -19,6 +16,7 @@ public class GeminiWebApiService extends AbstractProcessService {
 
     String pipeName = configLoader.getProperty("translation.gemini-webapi.output.pipe-name");
     String command = configLoader.getProperty("translation.gemini-webapi.command");
+
     resultCollector = new ResultCollector(pipeName);
     start(command, resultCollector);
   }
@@ -34,29 +32,11 @@ public class GeminiWebApiService extends AbstractProcessService {
       synchronized (resultCollector) {
         resultCollector.wait();
       }
-      return resultCollector.getResult().result;
+
+      JsonNode jsonNode = resultCollector.getResult();
+      return jsonNode.get("result").asText();
     } catch (Exception e) {
       return e.toString();
     }
   }
-
-  @RequiredArgsConstructor
-  @Getter
-  public static class ResultCollector implements Consumer<String> {
-    private final String pipeToken;
-    private Result result;
-
-    @Override
-    public void accept(String str) {
-      if (str.contains(pipeToken)) {
-        synchronized (this) {
-          String jsonStr = str.substring(pipeToken.length());
-          result = JsonNodes.toValue(jsonStr, Result.class);
-          notify();
-        }
-      }
-    }
-  }
-
-  private record Result(String source, String result, String model) {}
 }

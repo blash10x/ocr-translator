@@ -3,28 +3,21 @@ package blash10x.ocrtranslator.service;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
 
-import blash10x.ocrtranslator.util.JsonNodes;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
-import java.util.function.Consumer;
 import javafx.scene.image.Image;
 import javafx.scene.image.WritableImage;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 /**
  * Author: myungsik.sung@gmail.com
  */
 public class PaddleOCRService extends AbstractProcessService {
-  private final ObjectMapper mapper = new ObjectMapper();
   private final ResultCollector resultCollector;
   private final Path watchPath;
   private final File outputImageFile;
@@ -59,6 +52,7 @@ public class PaddleOCRService extends AbstractProcessService {
       synchronized (resultCollector) {
         resultCollector.wait();
       }
+
       resultText = collectTexts(resultCollector.getResult(), resultKey);
 
       while (true) {
@@ -112,23 +106,5 @@ public class PaddleOCRService extends AbstractProcessService {
       sb.append(textNode.toPrettyString()).append("\n");
     }
     return sb.toString().strip();
-  }
-
-  @RequiredArgsConstructor
-  @Getter
-  public static class ResultCollector implements Consumer<String> {
-    private final String pipeToken;
-    private JsonNode result;
-
-    @Override
-    public void accept(String str) {
-      if (str.contains(pipeToken)) {
-        synchronized (this) {
-          String jsonStr = str.substring(pipeToken.length());
-          result = JsonNodes.toJsonNode(jsonStr);
-          notify();
-        }
-      }
-    }
   }
 }

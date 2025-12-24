@@ -39,7 +39,7 @@ public abstract class AbstractProcessService {
       builder.redirectErrorStream(true);
 
       process = builder.start();
-      executorService.execute(new OutputHandler(outputConsumer));
+      executorService.execute(new ProcessOutputHandler(outputConsumer));
       writer = new BufferedWriter(new OutputStreamWriter(process.getOutputStream())); // get stream for input to the process
       System.out.printf("%s has started: %s%n", processName, command);
 
@@ -77,10 +77,10 @@ public abstract class AbstractProcessService {
     }
   }
 
-  private class OutputHandler implements Runnable {
+  private class ProcessOutputHandler implements Runnable {
     private final Consumer<String> consumer;
 
-    public OutputHandler(Consumer<String> consumer) {
+    public ProcessOutputHandler(Consumer<String> consumer) {
       this.consumer = consumer;
     }
 
