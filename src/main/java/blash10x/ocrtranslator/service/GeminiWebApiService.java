@@ -17,9 +17,9 @@ public class GeminiWebApiService extends AbstractProcessService {
   public GeminiWebApiService() {
     super("gemini-webapi");
 
-    String pipeToken = configLoader.getProperty("translation.gemini-webapi.pipe-token");
+    String pipeName = configLoader.getProperty("translation.gemini-webapi.output.pipe-name");
     String command = configLoader.getProperty("translation.gemini-webapi.command");
-    resultCollector = new ResultCollector(pipeToken);
+    resultCollector = new ResultCollector(pipeName);
     start(command, resultCollector);
   }
 

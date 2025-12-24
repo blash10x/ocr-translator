@@ -3,6 +3,7 @@ package blash10x.ocrtranslator.service;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
 
+import blash10x.ocrtranslator.util.JsonNodes;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
@@ -13,17 +14,20 @@ import java.nio.file.Paths;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
+import java.util.function.Consumer;
 import javafx.scene.image.Image;
 import javafx.scene.image.WritableImage;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 /**
  * Author: myungsik.sung@gmail.com
  */
 public class PaddleOCRService extends AbstractProcessService {
   private final ObjectMapper mapper = new ObjectMapper();
+  private final ResultCollector resultCollector;
   private final Path watchPath;
   private final File outputImageFile;
-  private final File outputJsonFile;
   private final String resultKey;
 
   public PaddleOCRService() {
@@ -31,31 +35,36 @@ public class PaddleOCRService extends AbstractProcessService {
 
     String outputDir = configLoader.getProperty("paddleocr.output.dir");
     String outputImageFilename = configLoader.getProperty("paddleocr.output.image.filename");
-    String outputJsonFilename = configLoader.getProperty("paddleocr.output.json.filename");
+    String pipeName = configLoader.getProperty("paddleocr.output.pipe-name");
     String command = configLoader.getProperty("paddleocr.command");
 
     resultKey = configLoader.getProperty("paddleocr.output.json.resultKey");
     watchPath = Paths.get(outputDir);
     outputImageFile = new File(outputDir, outputImageFilename);
-    outputJsonFile = new File(outputDir, outputJsonFilename);
 
-    start(command);
+    resultCollector = new ResultCollector(pipeName);
+    start(command, resultCollector);
   }
 
   public OCRResult doOCR(File imagePath) {
     writeToProcess(imagePath + "\n");
 
-    String resultText = null;
+    String resultText;
     Image boxedImage = null;
     try {
-      // 감시할 이벤트 종류 등록
       WatchService watcher = FileSystems.getDefault().newWatchService();
       watchPath.register(watcher, ENTRY_CREATE, ENTRY_MODIFY);
       System.out.println("-- 디렉터리 감시 시작: " + watchPath);
+
+      synchronized (resultCollector) {
+        resultCollector.wait();
+      }
+      resultText = collectTexts(resultCollector.getResult(), resultKey);
+
       while (true) {
         WatchKey key;
         try {
-          key = watcher.take(); // 이벤트가 큐에 들어올 때까지 대기
+          key = watcher.take();
         } catch (InterruptedException e) {
           resultText = e.toString();
           break;
@@ -70,16 +79,13 @@ public class PaddleOCRService extends AbstractProcessService {
           // 여기에 파일 변경 시 수행할 작업 추가
           if (outputImageFile.getName().equals(fileName.toString())) {
             boxedImage = splitImage(outputImageFile);
-          }
-          if (outputJsonFile.getName().equals(fileName.toString())) {
-            resultText = collectTexts(outputJsonFile);
             break;
           }
         }
 
         // 다음 이벤트를 받기 위해 키를 재설정
         boolean valid = key.reset();
-        if (!valid || resultText != null) {
+        if (!valid || boxedImage != null) {
           break; // 디렉터리를 더 이상 감시할 수 없을 때 루프 종료
         }
       }
@@ -99,13 +105,30 @@ public class PaddleOCRService extends AbstractProcessService {
     );
   }
 
-  private String collectTexts(File outputJsonFile) throws IOException {
+  private String collectTexts(JsonNode jsonNode, String fieldName) {
     StringBuilder sb = new StringBuilder();
-    JsonNode rootNode = mapper.readTree(outputJsonFile);
-    JsonNode resultNodes = rootNode.get(resultKey);
+    JsonNode resultNodes = jsonNode.get("res").get(fieldName);
     for (JsonNode textNode : resultNodes) {
-      sb.append(textNode.toPrettyString().replace("\"", "")).append("\n");
+      sb.append(textNode.toPrettyString()).append("\n");
     }
     return sb.toString().strip();
+  }
+
+  @RequiredArgsConstructor
+  @Getter
+  public static class ResultCollector implements Consumer<String> {
+    private final String pipeToken;
+    private JsonNode result;
+
+    @Override
+    public void accept(String str) {
+      if (str.contains(pipeToken)) {
+        synchronized (this) {
+          String jsonStr = str.substring(pipeToken.length());
+          result = JsonNodes.toJsonNode(jsonStr);
+          notify();
+        }
+      }
+    }
   }
 }
