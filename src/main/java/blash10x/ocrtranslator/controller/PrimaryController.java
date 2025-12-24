@@ -9,6 +9,7 @@ import blash10x.ocrtranslator.App;
 import blash10x.ocrtranslator.service.GeminiWebApiService;
 import blash10x.ocrtranslator.service.OCRResult;
 import blash10x.ocrtranslator.service.OCRService;
+import blash10x.ocrtranslator.service.PaddleOCRService;
 import blash10x.ocrtranslator.service.TranslationN2mtService;
 import java.io.File;
 import java.io.IOException;
@@ -34,7 +35,7 @@ public class PrimaryController {
   @FXML
   private ImageView primaryImageView;
   @FXML
-  private TextArea textArea1; // OCR 결과
+  private TextArea ocrTextArea; // OCR 결과
   @FXML
   private TextArea textArea2; // 번역 결과
   @FXML
@@ -44,7 +45,7 @@ public class PrimaryController {
   private Stage secondaryStage;
 
   public PrimaryController() {
-    ocrService = new OCRService();
+    ocrService = new PaddleOCRService();
     translationN2mtService = new TranslationN2mtService();
     geminiWebApiService = new GeminiWebApiService();
   }
@@ -55,8 +56,9 @@ public class PrimaryController {
     // 실제 Clipping 기능은 사용자 인터페이스 로직에 따라 구현해야 합니다.
     // 여기서는 TextAreas에 텍스트를 표시하는 기능만 포함합니다.
     // CSS 예시: .clippable-textarea { -fx-background-color: lightgray; -fx-border-color: darkgray; }
-    textArea1.getStyleClass().add("clippable-textarea");
+    ocrTextArea.getStyleClass().add("clippable-textarea");
     textArea2.getStyleClass().add("clippable-textarea");
+    textArea3.getStyleClass().add("clippable-textarea");
   }
 
   public void close() {
@@ -100,7 +102,7 @@ public class PrimaryController {
 
   @FXML
   private void translate() {
-    String textResult = textArea1.getText();
+    String textResult = ocrTextArea.getText();
     System.out.println("[OCR]:\n" + CYAN + textResult + RESET);
 
     // 2. 번역 수행 (OCR 결과가 나온 후 별도 스레드에서 실행)
@@ -126,7 +128,7 @@ public class PrimaryController {
    */
   public void displayCapturedImage(Image image, File imagePath) {
     primaryImageView.setImage(image);
-    textArea1.setText("처리 중입니다...");
+    ocrTextArea.setText("처리 중입니다...");
     textArea2.setText("...");
     textArea3.setText("...");
 
@@ -134,12 +136,12 @@ public class PrimaryController {
     Platform.runLater(() -> {
       // 1. OCR 수행 (별도 스레드에서 실행하여 UI 스레드 블로킹 방지)
       new Thread(() -> {
-        OCRResult ocrResult = ocrService.doOCR(imagePath);
+        OCRResult ocrResult = ocrService.doOCR(image, imagePath);
         primaryImageView.setImage(ocrResult.boxedImage());
 
-        String textResult = ocrResult.text();
-        textArea1.setText(textResult); // 첫 번째 TextArea에 OCR 결과 표시
-        System.out.println("[OCR 결과]:\n" + CYAN + textResult + RESET);
+        String resultText = ocrResult.text();
+        ocrTextArea.setText(resultText);
+        System.out.println("[OCR 결과]:\n" + CYAN + resultText + RESET);
 
         translate();
       }).start();

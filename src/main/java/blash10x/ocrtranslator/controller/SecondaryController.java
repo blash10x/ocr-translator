@@ -21,6 +21,7 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javax.imageio.ImageIO;
 import lombok.Setter;
+import org.apache.commons.io.FilenameUtils;
 
 /**
  * Author: myungsik.sung@gmail.com
@@ -244,13 +245,14 @@ public class SecondaryController {
 
     try {
       Robot robot = new Robot();
-      // Java AWT Robot을 사용하여 화면의 특정 영역을 캡처
       BufferedImage screenCapture = robot.createScreenCapture(new Rectangle(x, y, width, height));
       WritableImage fxImage = SwingFXUtils.toFXImage(screenCapture, null);
-      File screenCaptureFile = new File(screenshotDir, screenshotImageFilename);
-      ImageIO.write(screenCapture, "bmp", screenCaptureFile);
 
-      primaryController.displayCapturedImage(fxImage, screenCaptureFile); // 캡처된 이미지를 Primary Stage로 전달
+      File screenCaptureFile = new File(screenshotDir, screenshotImageFilename);
+      String fileExtension = FilenameUtils.getExtension(screenCaptureFile.getName());
+      ImageIO.write(screenCapture, fileExtension, screenCaptureFile);
+
+      primaryController.displayCapturedImage(fxImage, screenCaptureFile);
       System.out.println("스크린샷이 Primary Stage로 전송되었습니다.");
       // stage.close(); // 캡처 후 창을 닫을 경우
     } catch (AWTException e) {

@@ -2,24 +2,14 @@
 package blash10x.ocrtranslator.service;
 
 import java.io.File;
+import javafx.scene.image.Image;
 
 /**
- * 스크린샷 이미지에서 텍스트를 추출하는 OCR 서비스입니다.
- * <p/>
  * Author: myungsik.sung@gmail.com
  */
-public class OCRService {
-  private final PaddleOCRService paddleOCRService;
+public interface OCRService {
 
-  public OCRService() {
-    paddleOCRService = new PaddleOCRService();
-  }
+  OCRResult doOCR(Image image, File imagePath);
 
-  public OCRResult doOCR(File imagePath) {
-    return paddleOCRService.doOCR(imagePath);
-  }
-
-  public void close() {
-    paddleOCRService.close();
-  }
+  void close();
 }

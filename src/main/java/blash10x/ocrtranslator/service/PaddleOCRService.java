@@ -17,7 +17,7 @@ import javafx.scene.image.WritableImage;
 /**
  * Author: myungsik.sung@gmail.com
  */
-public class PaddleOCRService extends AbstractProcessService {
+public class PaddleOCRService extends AbstractProcessService implements OCRService {
   private final ResultCollector resultCollector;
   private final Path watchPath;
   private final File outputImageFile;
@@ -39,7 +39,8 @@ public class PaddleOCRService extends AbstractProcessService {
     start(command, resultCollector);
   }
 
-  public OCRResult doOCR(File imagePath) {
+  @Override
+  public OCRResult doOCR(Image image, File imagePath) {
     writeToProcess(imagePath + "\n");
 
     String resultText;
@@ -103,7 +104,7 @@ public class PaddleOCRService extends AbstractProcessService {
     StringBuilder sb = new StringBuilder();
     JsonNode resultNodes = jsonNode.get("res").get(fieldName);
     for (JsonNode textNode : resultNodes) {
-      sb.append(textNode.toPrettyString()).append("\n");
+      sb.append(textNode.asText().replace("\"", "")).append("\n");
     }
     return sb.toString().strip();
   }
