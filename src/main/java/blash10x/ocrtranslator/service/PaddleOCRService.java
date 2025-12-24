@@ -16,7 +16,8 @@ import org.opencv.imgproc.Imgproc;
  */
 public class PaddleOCRService extends AbstractProcessService implements OCRService {
   private final ResultCollector resultCollector;
-  private final String resultKey;
+  private final String resultTextKey;
+  private final String resultBoxKey;
 
   public PaddleOCRService() {
     super("paddleocr");
@@ -24,7 +25,8 @@ public class PaddleOCRService extends AbstractProcessService implements OCRServi
     String pipeName = configLoader.getProperty("paddleocr.output.pipe-name");
     String command = configLoader.getProperty("paddleocr.command");
 
-    resultKey = configLoader.getProperty("paddleocr.output.json.resultKey");
+    resultTextKey = configLoader.getProperty("paddleocr.output.json.result-texts");
+    resultBoxKey = configLoader.getProperty("paddleocr.output.json.result-boxes");
     resultCollector = new ResultCollector(pipeName);
     start(command, resultCollector);
   }
@@ -38,7 +40,7 @@ public class PaddleOCRService extends AbstractProcessService implements OCRServi
         resultCollector.wait();
       }
 
-      String resultText= collectTexts(resultCollector.getResult(), resultKey);
+      String resultText= collectTexts(resultCollector.getResult(), resultTextKey);
       Image boxedImage = drawBoxes(image, resultCollector.getResult());
       return new OCRResult(resultText, boxedImage);
     } catch (Exception e) {
@@ -47,7 +49,7 @@ public class PaddleOCRService extends AbstractProcessService implements OCRServi
   }
 
   private String collectTexts(JsonNode jsonNode, String fieldName) {
-    JsonNode resultNodes = jsonNode.get("res").get(fieldName);
+    JsonNode resultNodes = jsonNode.get(fieldName);
     return resultNodes.valueStream()
         .map(JsonNode::textValue)
         .collect(Collectors.joining("\n"));
@@ -56,7 +58,7 @@ public class PaddleOCRService extends AbstractProcessService implements OCRServi
   private WritableImage drawBoxes(Image image, JsonNode result) {
     Mat imageMat = Images.writableImageToMat((WritableImage)image, null);
 
-    JsonNode boxNodes = result.get("res").get("rec_boxes");
+    JsonNode boxNodes = result.get(resultBoxKey);
     for (JsonNode position : boxNodes) {
       // 1. 사각형의 좌표 정의
       Point pt1 = new Point(position.get(0).intValue(), position.get(1).intValue()); // 왼쪽 상단 (x, y)
