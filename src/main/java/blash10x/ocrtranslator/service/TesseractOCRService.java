@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
+import javafx.scene.image.WritableImage;
 import javax.imageio.ImageIO;
 import net.sourceforge.tess4j.ITessAPI.TessOcrEngineMode;
 import net.sourceforge.tess4j.ITessAPI.TessPageIteratorLevel;
@@ -30,12 +30,12 @@ import org.opencv.imgproc.Imgproc;
  * <p/>
  * Author: myungsik.sung@gmail.com
  */
-public class TesseractOCRService {
-  private final ITesseract tesseract;
-
+public class TesseractOCRService implements OCRService {
   static {
     System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
   }
+
+  private final ITesseract tesseract;
 
   public TesseractOCRService() {
     ConfigLoader configLoader = ConfigLoader.getConfigLoader();
@@ -56,15 +56,20 @@ public class TesseractOCRService {
         });
   }
 
-  public String doOCR(Image image, ImageView imageView) {
+  @Override
+  public void close() {
+  }
+
+  @Override
+  public OCRResult doOCR(Image image, File imagePath) {
     List<Word> ocrWords = getWords(image);
 
     BufferedImage originalBfImage = convertFxImageToBufferedImage(image);
     BufferedImage modifiedBfImage = drawBoxes(ocrWords, originalBfImage);
     Image modifiedFxImage = convertBufferedImageToFxImage(modifiedBfImage);
-    imageView.setImage(modifiedFxImage);
 
-    return ocrWords.stream().map(Word::getText).collect(Collectors.joining());
+    String resultText = ocrWords.stream().map(Word::getText).collect(Collectors.joining());
+    return new OCRResult(resultText, modifiedFxImage);
   }
 
   private List<Word> getWords(Image image) {
@@ -185,7 +190,7 @@ public class TesseractOCRService {
   }
 
   // Helper: BufferedImage를 JavaFX Image로 변환
-  private Image convertBufferedImageToFxImage(BufferedImage bImage) {
+  private WritableImage convertBufferedImageToFxImage(BufferedImage bImage) {
     return SwingFXUtils.toFXImage(bImage, null);
   }
 }
