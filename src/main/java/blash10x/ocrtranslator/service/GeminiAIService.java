@@ -16,7 +16,7 @@ import java.util.Map;
  * <p/>
  * Author: myungsik.sung@gmail.com
  */
-public class GeminiAIService extends AbstractTranslationService {
+public class GeminiAIService {
   private final Map<String, String> cache = new HashMap<>();
   private final String model;
   private final Client client;
