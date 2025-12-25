@@ -3,6 +3,8 @@ package blash10x.ocrtranslator;
 
 import blash10x.ocrtranslator.controller.PrimaryController;
 import java.io.IOException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -13,6 +15,7 @@ import javafx.stage.Window;
  * Author: myungsik.sung@gmail.com
  */
 public class App extends Application {
+  public static final ExecutorService EXECUTOR_SERVICE = Executors.newVirtualThreadPerTaskExecutor();
 
   @Override
   public void init() throws Exception {

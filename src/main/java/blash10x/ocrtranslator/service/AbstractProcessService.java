@@ -1,5 +1,6 @@
 package blash10x.ocrtranslator.service;
 
+import blash10x.ocrtranslator.App;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -8,14 +9,13 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 
 /**
  * Author: myungsik.sung@gmail.com
  */
 public abstract class AbstractProcessService {
-  private static final ExecutorService executorService = Executors.newVirtualThreadPerTaskExecutor();
+  private static final ExecutorService executorService = App.EXECUTOR_SERVICE;
   protected final ConfigLoader configLoader;
   private final String processName;
   private Process process;
@@ -90,6 +90,7 @@ public abstract class AbstractProcessService {
           }
         }
       } catch (Exception e) {
+        System.out.printf("%s%n", e.getMessage());
         throw new RuntimeException(e);
       } finally {
         System.out.printf("Exit OutputHandler: %s%n", processName);

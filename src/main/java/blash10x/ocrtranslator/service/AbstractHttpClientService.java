@@ -11,7 +11,7 @@ import javax.net.ssl.X509TrustManager;
 /**
  * Author: myungsik.sung@gmail.com
  */
-public abstract class AbstractTranslationService {
+public abstract class AbstractHttpClientService {
 
   // 개발 환경용: SSL 인증서 검증 무시 HttpClient
   HttpClient createInsecureHttpClient() throws NoSuchAlgorithmException, KeyManagementException {

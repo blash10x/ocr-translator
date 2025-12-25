@@ -19,7 +19,7 @@ import java.util.Map;
  * <p/>
  * Author: myungsik.sung@gmail.com
  */
-public class TranslationNsmtService extends AbstractTranslationService {
+public class TranslationNsmtService extends AbstractHttpClientService {
   private static final String PREFIX = "translation.nsmt.";
   private final String targetUrl;
   private final String subFormData;

@@ -1,8 +1,9 @@
 // src/main/java/blash10x/ocrtranslator/controller/PrimaryController.java
 package blash10x.ocrtranslator.controller;
 
-import static blash10x.ocrtranslator.util.ConsoleColors.BLUE;
 import static blash10x.ocrtranslator.util.ConsoleColors.CYAN;
+import static blash10x.ocrtranslator.util.ConsoleColors.CYAN_BRIGHT;
+import static blash10x.ocrtranslator.util.ConsoleColors.GREEN_BRIGHT;
 import static blash10x.ocrtranslator.util.ConsoleColors.RESET;
 
 import blash10x.ocrtranslator.App;
@@ -103,28 +104,24 @@ public class PrimaryController {
   @FXML
   private void translate() {
     String textResult = ocrTextArea.getText();
-    System.out.println("[OCR]:\n" + CYAN + textResult + RESET);
+    System.out.println("[번역 원문]:\n" + CYAN + textResult + RESET);
 
-    // 2. 번역 수행 (OCR 결과가 나온 후 별도 스레드에서 실행)
-    Platform.runLater(() -> {
-      new Thread(() -> {
-        String translatedText = translationN2mtService.translate(textResult);
-        textArea2.setText(translatedText); // 두 번째 TextArea에 번역 결과 표시
-        System.out.println("[번역 결과(n2mt)]:\n" + BLUE + translatedText + RESET);
-      }).start();
+    App.EXECUTOR_SERVICE.submit(() -> {
+      String translatedText = translationN2mtService.translate(textResult);
+      System.out.println("[번역 결과(n2mt)]:\n" + GREEN_BRIGHT + translatedText + RESET);
+
+      Platform.runLater(() -> textArea2.setText(translatedText));
     });
-    Platform.runLater(() -> {
-      new Thread(() -> {
-        String translatedText = geminiWebApiService.translate(textResult);
-        textArea3.setText(translatedText); // 세 번째 TextArea에 번역 결과 표시
-        System.out.println("[번역 결과(gemini)]:\n" + BLUE + translatedText + RESET);
-      }).start();
+    App.EXECUTOR_SERVICE.submit(() -> {
+      String translatedText = geminiWebApiService.translate(textResult);
+      System.out.println("[번역 결과(gemini)]:\n" + GREEN_BRIGHT + translatedText + RESET);
+
+      Platform.runLater(() -> textArea3.setText(translatedText));
     });
   }
 
   /**
-   * Secondary Stage에서 캡처된 이미지를 받아 ImageView에 표시하고 OCR 및 번역을 수행합니다.
-   * @param image 캡처된 JavaFX Image
+   * @param image Captured JavaFX Image
    */
   public void displayCapturedImage(Image image, File imagePath) {
     primaryImageView.setImage(image);
@@ -132,19 +129,15 @@ public class PrimaryController {
     textArea2.setText("...");
     textArea3.setText("...");
 
-    // UI 업데이트는 JavaFX Application Thread에서 실행
-    Platform.runLater(() -> {
-      // 1. OCR 수행 (별도 스레드에서 실행하여 UI 스레드 블로킹 방지)
-      new Thread(() -> {
-        OCRResult ocrResult = ocrService.doOCR(image, imagePath);
+    App.EXECUTOR_SERVICE.submit(() -> {
+      OCRResult ocrResult = ocrService.doOCR(image, imagePath);
+      System.out.println("[OCR 결과]:\n" + CYAN_BRIGHT + ocrResult.text() + RESET);
+
+      Platform.runLater(() -> {
         primaryImageView.setImage(ocrResult.boxedImage());
-
-        String resultText = ocrResult.text();
-        ocrTextArea.setText(resultText);
-        System.out.println("[OCR 결과]:\n" + CYAN + resultText + RESET);
-
+        ocrTextArea.setText(ocrResult.text());
         translate();
-      }).start();
+      });
     });
   }
 }
