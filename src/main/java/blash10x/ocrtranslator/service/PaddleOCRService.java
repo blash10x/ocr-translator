@@ -22,11 +22,11 @@ public class PaddleOCRService extends AbstractProcessService implements OCRServi
   public PaddleOCRService() {
     super("paddleocr");
 
-    String pipeName = configLoader.getProperty("paddleocr.output.pipe-name");
-    String command = configLoader.getProperty("paddleocr.command");
+    String pipeName = configLoader.getProperty("ocr.paddleocr.output.pipe-name");
+    String command = configLoader.getProperty("ocr.paddleocr.command");
 
-    resultTextKey = configLoader.getProperty("paddleocr.output.json.result-texts");
-    resultBoxKey = configLoader.getProperty("paddleocr.output.json.result-boxes");
+    resultTextKey = configLoader.getProperty("ocr.paddleocr.output.json.result-texts");
+    resultBoxKey = configLoader.getProperty("ocr.paddleocr.output.json.result-boxes");
     resultCollector = new ResultCollector(pipeName);
     start(command, resultCollector);
   }

@@ -8,7 +8,7 @@ public interface TranslationService {
 
   default String getName() {
     return "Translation";
-  };
+  }
 
   String translate(String textToTranslate);
 
