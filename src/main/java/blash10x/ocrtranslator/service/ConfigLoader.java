@@ -3,6 +3,9 @@ package blash10x.ocrtranslator.service;
 import blash10x.ocrtranslator.App;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
@@ -21,9 +24,12 @@ public class ConfigLoader {
     return new ConfigLoader();
   }
 
+  @SuppressWarnings("ConstantConditions")
   private ConfigLoader() {
     try (InputStream input = App.class.getResourceAsStream("config.properties")) {
-      properties.load(input);
+      try (Reader reader = new InputStreamReader(input, StandardCharsets.UTF_8)) {
+        properties.load(reader);
+      }
     } catch (IOException e) {
       System.err.println("Could not load config.properties: " + e.getMessage());
     }
@@ -31,6 +37,9 @@ public class ConfigLoader {
 
   public String getProperty(String key) {
     String value = properties.getProperty(key);
+    if (value == null) {
+      throw new IllegalArgumentException("Missing property: " + key);
+    }
     Matcher matcher = pattern.matcher(value);
     StringBuilder builder = new StringBuilder();
     while (matcher.find()) {

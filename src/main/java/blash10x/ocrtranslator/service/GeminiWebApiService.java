@@ -10,6 +10,7 @@ import java.util.Map;
 public class GeminiWebApiService extends AbstractProcessService {
   private final Map<String, String> cache = new HashMap<>();
   private final ResultCollector resultCollector;
+  private final String promptTemplate;
 
   public GeminiWebApiService() {
     super("gemini-webapi");
@@ -19,6 +20,8 @@ public class GeminiWebApiService extends AbstractProcessService {
 
     resultCollector = new ResultCollector(pipeName);
     start(command, resultCollector);
+
+    promptTemplate = configLoader.getProperty("translation.gemini-webapi.prompt-template");
   }
 
   public String translate(String textToTranslate) {
@@ -27,14 +30,17 @@ public class GeminiWebApiService extends AbstractProcessService {
 
   private String _translate(String textToTranslate) {
     try {
-      writeToProcess(textToTranslate + "\nEOF\n"); // translation command:
+      String prompt = String.format(promptTemplate, textToTranslate);
+      System.out.println("[Gemini-WebAPI:prompt]:\n" + prompt);
+
+      writeToProcess(prompt + "\nEOF\n"); // translation command:
 
       synchronized (resultCollector) {
         resultCollector.wait();
       }
 
       JsonNode jsonNode = resultCollector.getResult();
-      return jsonNode.get("result").asText();
+      return jsonNode.get("target").asText();
     } catch (Exception e) {
       return e.toString();
     }

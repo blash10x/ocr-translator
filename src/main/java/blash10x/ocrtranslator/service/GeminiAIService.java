@@ -1,6 +1,8 @@
 // src/main/java/blash10x/ocrtranslator/service/TranslationService.java
 package blash10x.ocrtranslator.service;
 
+import blash10x.ocrtranslator.util.JsonNodes;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableList;
 import com.google.genai.Client;
 import com.google.genai.types.GenerateContentConfig;
@@ -18,21 +20,25 @@ import java.util.Map;
  */
 public class GeminiAIService {
   private final Map<String, String> cache = new HashMap<>();
-  private final String model;
   private final Client client;
   private final GenerateContentConfig generateContentConfig;
+  private final String model;
+  private final String promptTemplate;
 
   public GeminiAIService() {
     ConfigLoader configLoader = ConfigLoader.getConfigLoader();
-
-    model =  configLoader.getProperty("translation.gemini-ai.model-name");
 
     String apiKey =  configLoader.getProperty("translation.gemini-ai.api-key");
     client = Client.builder()
         .apiKey(apiKey)
         //.vertexAI(true)
         .build();
+    model =  configLoader.getProperty("translation.gemini-ai.model-name");
+    promptTemplate = configLoader.getProperty("translation.gemini-webapi.prompt-template");
+    generateContentConfig = createGenerateContentConfig();
+  }
 
+  private GenerateContentConfig createGenerateContentConfig() {
     ImmutableList<SafetySetting> safetySettings =
         ImmutableList.of(
             SafetySetting.builder()
@@ -48,7 +54,8 @@ public class GeminiAIService {
                 .threshold(HarmBlockThreshold.Known.BLOCK_NONE)
                 .build());
 
-    generateContentConfig = GenerateContentConfig.builder()
+    return GenerateContentConfig.builder()
+        .responseMimeType("application/json")
         .temperature(0.5f)
         .topP(0.8f)
         .safetySettings(safetySettings)
@@ -60,12 +67,16 @@ public class GeminiAIService {
   }
 
   private String _translate(String textToTranslate) {
-    String text = "일본어:\n" + textToTranslate + "\n\n한국어로 번역.\n"
-        + "원문의 줄바꿈을 번역문의 줄바꿈에도 동일하게 적용.\n"
-        + "부가 설명없이 번역 결과만 응답.";
-    GenerateContentResponse response =
-        client.models.generateContent(model, text, generateContentConfig);
+    String prompt = String.format(promptTemplate, textToTranslate);
+    System.out.println("[GeminiAI:prompt]:\n" + prompt);
 
-    return response.text();
+    GenerateContentResponse response =
+        client.models.generateContent(model, prompt, generateContentConfig);
+
+    String responseText = response.text();
+    System.out.println("[GeminiAI:response]:\n" + responseText);
+
+    JsonNode jsonNode = JsonNodes.toJsonNode(responseText);
+    return jsonNode.get("target").textValue();
   }
 }

@@ -22,7 +22,9 @@ public class ResultCollector implements Consumer<String> {
   public void accept(String str) {
     if (str.contains(token)) {
       synchronized (this) {
-        String jsonStr = str.substring(str.indexOf("{"));
+        int beginIndex = str.indexOf("{");
+        int endIndex = str.lastIndexOf("}");
+        String jsonStr = str.substring(beginIndex, endIndex + 1);
         result = JsonNodes.toJsonNode(jsonStr);
         notify();
       }
