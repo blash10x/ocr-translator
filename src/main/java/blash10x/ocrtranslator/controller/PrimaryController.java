@@ -3,7 +3,6 @@ package blash10x.ocrtranslator.controller;
 import static blash10x.ocrtranslator.util.ConsoleColors.CYAN;
 import static blash10x.ocrtranslator.util.ConsoleColors.CYAN_BRIGHT;
 import static blash10x.ocrtranslator.util.ConsoleColors.GREEN_BRIGHT;
-import static blash10x.ocrtranslator.util.ConsoleColors.RESET;
 
 import blash10x.ocrtranslator.App;
 import blash10x.ocrtranslator.service.GeminiWebApiService;
@@ -102,17 +101,19 @@ public class PrimaryController {
   @FXML
   private void translate() {
     String textResult = ocrTextArea.getText();
-    System.out.println("[번역 원문]:\n" + CYAN + textResult + RESET);
+    System.out.println("[번역 원문]:\n" + CYAN(textResult));
 
     App.EXECUTOR_SERVICE.submit(() -> {
       String translatedText = translationN2mtService.translate(textResult);
-      System.out.println("[번역 결과(n2mt)]:\n" + GREEN_BRIGHT + translatedText + RESET);
+      System.out.printf("[번역 결과(%s)]:%n%s%n",
+          translationN2mtService.getName(), GREEN_BRIGHT(translatedText));
 
       Platform.runLater(() -> textArea2.setText(translatedText));
     });
     App.EXECUTOR_SERVICE.submit(() -> {
       String translatedText = geminiWebApiService.translate(textResult);
-      System.out.println("[번역 결과(gemini)]:\n" + GREEN_BRIGHT + translatedText + RESET);
+      System.out.printf("[번역 결과(%s)]:%n%s%n",
+          geminiWebApiService.getName(), GREEN_BRIGHT(translatedText));
 
       Platform.runLater(() -> textArea3.setText(translatedText));
     });
@@ -129,7 +130,7 @@ public class PrimaryController {
 
     App.EXECUTOR_SERVICE.submit(() -> {
       OCRResult ocrResult = ocrService.doOCR(image, imagePath);
-      System.out.println("[OCR 결과]:\n" + CYAN_BRIGHT + ocrResult.text() + RESET);
+      System.out.println("[OCR 결과]:\n" + CYAN_BRIGHT(ocrResult.text()));
 
       Platform.runLater(() -> {
         primaryImageView.setImage(ocrResult.boxedImage());

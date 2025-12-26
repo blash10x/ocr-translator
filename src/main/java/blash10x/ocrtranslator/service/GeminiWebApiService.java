@@ -25,6 +25,11 @@ public class GeminiWebApiService extends AbstractProcessService implements Trans
   }
 
   @Override
+  public String getName() {
+    return getProcessName();
+  }
+
+  @Override
   public String translate(String textToTranslate) {
     return cache.computeIfAbsent(textToTranslate, key -> _translate(textToTranslate));
   }

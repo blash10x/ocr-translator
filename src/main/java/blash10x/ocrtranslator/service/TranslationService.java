@@ -6,8 +6,12 @@ package blash10x.ocrtranslator.service;
 public interface TranslationService {
   ConfigLoader configLoader = ConfigLoader.getConfigLoader();
 
-  default void close() {
-  }
+  default String getName() {
+    return "Translation";
+  };
 
   String translate(String textToTranslate);
+
+  default void close() {
+  }
 }

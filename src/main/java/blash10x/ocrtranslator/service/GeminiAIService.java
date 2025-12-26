@@ -33,6 +33,11 @@ public class GeminiAIService implements TranslationService {
     generateContentConfig = createGenerateContentConfig();
   }
 
+  @Override
+  public String getName() {
+    return "gemini-ai";
+  }
+
   private GenerateContentConfig createGenerateContentConfig() {
     ImmutableList<SafetySetting> safetySettings =
         ImmutableList.of(

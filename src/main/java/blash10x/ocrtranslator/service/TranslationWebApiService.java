@@ -15,11 +15,14 @@ import java.util.Map;
  */
 public class TranslationWebApiService extends AbstractHttpClientService implements TranslationService {
   private final Map<String, String> cache = new HashMap<>();
+  private final String name;
   private final String targetUrl;
   private final String subFormData;
   private final String resultKey;
 
   public TranslationWebApiService(String name) {
+    this.name = name;
+
     String prefix = String.format("translation.%s.", name);
     targetUrl = configLoader.getProperty(prefix + "target-url");
 
@@ -30,6 +33,11 @@ public class TranslationWebApiService extends AbstractHttpClientService implemen
             .append("=").append(value.toString()));
     subFormData = formData.toString();
     resultKey = configLoader.getProperty(prefix + "response.resultKey");
+  }
+
+  @Override
+  public String getName() {
+    return name;
   }
 
   @Override
@@ -52,7 +60,7 @@ public class TranslationWebApiService extends AbstractHttpClientService implemen
 
       JsonNode rootNode = JsonNodes.toJsonNode(response.body()); // JSON 파싱
       if (rootNode.has(resultKey)) {
-        return rootNode.get(resultKey).asText();
+        return rootNode.get(resultKey).textValue();
       } else {
         return "Error: No translatedText in response";
       }

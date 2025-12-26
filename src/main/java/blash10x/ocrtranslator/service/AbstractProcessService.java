@@ -10,12 +10,14 @@ import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Consumer;
+import lombok.Getter;
 
 /**
  * Author: myungsik.sung@gmail.com
  */
 public abstract class AbstractProcessService {
   private static final ExecutorService executorService = App.EXECUTOR_SERVICE;
+  @Getter
   private final String processName;
   private Process process;
   private BufferedWriter writer;
