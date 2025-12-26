@@ -19,7 +19,7 @@ import java.util.Map;
  * <p/>
  * Author: myungsik.sung@gmail.com
  */
-public class TranslationNsmtService extends AbstractHttpClientService {
+public class TranslationNsmtService extends AbstractHttpClientService implements TranslationService {
   private static final String PREFIX = "translation.nsmt.";
   private final String targetUrl;
   private final String subFormData;
@@ -30,8 +30,6 @@ public class TranslationNsmtService extends AbstractHttpClientService {
   private final ObjectMapper mapper = new ObjectMapper();
 
   public TranslationNsmtService() {
-    ConfigLoader configLoader = ConfigLoader.getConfigLoader();
-
     targetUrl = configLoader.getProperty(PREFIX + "target-url");
 
     StringBuilder formData = new StringBuilder();

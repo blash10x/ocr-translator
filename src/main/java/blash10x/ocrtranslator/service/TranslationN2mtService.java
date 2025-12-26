@@ -19,7 +19,7 @@ import java.util.Map;
  * <p/>
  * Author: myungsik.sung@gmail.com
  */
-public class TranslationN2mtService extends AbstractHttpClientService {
+public class TranslationN2mtService extends AbstractHttpClientService implements TranslationService {
   private static final String PREFIX = "translation.n2mt.";
   private final String targetUrl;
   private final String subFormData;
@@ -30,8 +30,6 @@ public class TranslationN2mtService extends AbstractHttpClientService {
   private final ObjectMapper mapper = new ObjectMapper();
 
   public TranslationN2mtService() {
-    ConfigLoader configLoader = ConfigLoader.getConfigLoader();
-
     targetUrl = configLoader.getProperty(PREFIX + "target-url");
 
     StringBuilder formData = new StringBuilder();

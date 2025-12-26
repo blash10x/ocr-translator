@@ -18,7 +18,7 @@ import java.util.Map;
  * <p/>
  * Author: myungsik.sung@gmail.com
  */
-public class GeminiAIService {
+public class GeminiAIService implements TranslationService {
   private final Map<String, String> cache = new HashMap<>();
   private final Client client;
   private final GenerateContentConfig generateContentConfig;
@@ -26,8 +26,6 @@ public class GeminiAIService {
   private final String promptTemplate;
 
   public GeminiAIService() {
-    ConfigLoader configLoader = ConfigLoader.getConfigLoader();
-
     String apiKey =  configLoader.getProperty("translation.gemini-ai.api-key");
     client = Client.builder()
         .apiKey(apiKey)

@@ -18,10 +18,12 @@ import java.util.stream.Collectors;
  */
 public class ConfigLoader {
   private static final Pattern pattern = Pattern.compile("\\$\\{([^}]+)}");
+  private static final ConfigLoader INSTANCE = new ConfigLoader();
+
   private final Properties properties = new Properties();
 
   public static ConfigLoader getConfigLoader() {
-    return new ConfigLoader();
+    return INSTANCE;
   }
 
   @SuppressWarnings("ConstantConditions")

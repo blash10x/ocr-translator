@@ -7,7 +7,7 @@ import java.util.Map;
 /**
  * Author: myungsik.sung@gmail.com
  */
-public class GeminiWebApiService extends AbstractProcessService {
+public class GeminiWebApiService extends AbstractProcessService implements TranslationService {
   private final Map<String, String> cache = new HashMap<>();
   private final ResultCollector resultCollector;
   private final String promptTemplate;

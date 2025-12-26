@@ -38,8 +38,6 @@ public class TesseractOCRService implements OCRService {
   private final ITesseract tesseract;
 
   public TesseractOCRService() {
-    ConfigLoader configLoader = ConfigLoader.getConfigLoader();
-
     String tessdataPath = configLoader.getProperty("ocr.tesseract.tessdata.path");
     String language = configLoader.getProperty("ocr.tesseract.language");
 

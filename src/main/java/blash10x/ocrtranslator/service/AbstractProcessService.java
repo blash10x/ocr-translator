@@ -16,13 +16,11 @@ import java.util.function.Consumer;
  */
 public abstract class AbstractProcessService {
   private static final ExecutorService executorService = App.EXECUTOR_SERVICE;
-  protected final ConfigLoader configLoader;
   private final String processName;
   private Process process;
   private BufferedWriter writer;
 
   protected AbstractProcessService(String processName) {
-    configLoader = ConfigLoader.getConfigLoader();
     this.processName = processName;
   }
 
