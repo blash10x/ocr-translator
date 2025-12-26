@@ -10,7 +10,7 @@ import blash10x.ocrtranslator.service.GeminiWebApiService;
 import blash10x.ocrtranslator.service.OCRResult;
 import blash10x.ocrtranslator.service.OCRService;
 import blash10x.ocrtranslator.service.PaddleOCRService;
-import blash10x.ocrtranslator.service.TranslationN2mtService;
+import blash10x.ocrtranslator.service.TranslationWebApiService;
 import blash10x.ocrtranslator.service.TranslationService;
 import java.io.File;
 import java.io.IOException;
@@ -47,7 +47,7 @@ public class PrimaryController {
 
   public PrimaryController() {
     ocrService = new PaddleOCRService();
-    translationN2mtService = new TranslationN2mtService();
+    translationN2mtService = new TranslationWebApiService("n2mt");
     geminiWebApiService = new GeminiWebApiService();
   }
 
@@ -105,13 +105,13 @@ public class PrimaryController {
     System.out.println("[번역 원문]:\n" + CYAN + textResult + RESET);
 
     App.EXECUTOR_SERVICE.submit(() -> {
-      String translatedText = translationN2mtService.getTranslatedText(textResult);
+      String translatedText = translationN2mtService.translate(textResult);
       System.out.println("[번역 결과(n2mt)]:\n" + GREEN_BRIGHT + translatedText + RESET);
 
       Platform.runLater(() -> textArea2.setText(translatedText));
     });
     App.EXECUTOR_SERVICE.submit(() -> {
-      String translatedText = geminiWebApiService.getTranslatedText(textResult);
+      String translatedText = geminiWebApiService.translate(textResult);
       System.out.println("[번역 결과(gemini)]:\n" + GREEN_BRIGHT + translatedText + RESET);
 
       Platform.runLater(() -> textArea3.setText(translatedText));

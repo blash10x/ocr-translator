@@ -9,11 +9,14 @@ import com.google.genai.types.GenerateContentResponse;
 import com.google.genai.types.HarmBlockThreshold;
 import com.google.genai.types.HarmCategory;
 import com.google.genai.types.SafetySetting;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Author: myungsik.sung@gmail.com
  */
 public class GeminiAIService implements TranslationService {
+  private final Map<String, String> cache = new HashMap<>();
   private final Client client;
   private final GenerateContentConfig generateContentConfig;
   private final String model;
@@ -56,6 +59,10 @@ public class GeminiAIService implements TranslationService {
 
   @Override
   public String translate(String textToTranslate) {
+    return cache.computeIfAbsent(textToTranslate, key -> _translate(textToTranslate));
+  }
+
+  public String _translate(String textToTranslate) {
     String prompt = String.format(promptTemplate, textToTranslate);
     System.out.println("[GeminiAI:prompt]:\n" + prompt);
 
