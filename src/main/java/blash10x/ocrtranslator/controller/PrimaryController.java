@@ -1,4 +1,3 @@
-// src/main/java/blash10x/ocrtranslator/controller/PrimaryController.java
 package blash10x.ocrtranslator.controller;
 
 import static blash10x.ocrtranslator.util.ConsoleColors.CYAN;
@@ -12,6 +11,7 @@ import blash10x.ocrtranslator.service.OCRResult;
 import blash10x.ocrtranslator.service.OCRService;
 import blash10x.ocrtranslator.service.PaddleOCRService;
 import blash10x.ocrtranslator.service.TranslationN2mtService;
+import blash10x.ocrtranslator.service.TranslationService;
 import java.io.File;
 import java.io.IOException;
 import javafx.application.Platform;
@@ -30,8 +30,8 @@ import javafx.stage.Stage;
  */
 public class PrimaryController {
   private final OCRService ocrService;
-  private final TranslationN2mtService translationN2mtService;
-  private final GeminiWebApiService geminiWebApiService;
+  private final TranslationService translationN2mtService;
+  private final TranslationService geminiWebApiService;
 
   @FXML
   private ImageView primaryImageView;
@@ -82,7 +82,7 @@ public class PrimaryController {
     FXMLLoader fxmlLoader = new FXMLLoader(App.class.getResource("secondary-view.fxml"));
     Pane secondaryRoot = fxmlLoader.load();
     secondaryController = fxmlLoader.getController();
-    secondaryController.setPrimaryController(this); // SecondaryController에 PrimaryController 전달
+    secondaryController.setPrimaryController(this);
 
     //Stage secondaryStage = new Stage();
     secondaryStage = new Stage();
@@ -91,11 +91,9 @@ public class PrimaryController {
     secondaryStage.initModality(Modality.NONE);
     secondaryStage.setTitle("Capture Window");
 
-    // Scene 생성 시 초기 너비와 높이를 지정합니다.
-    Scene secondaryScene = new Scene(secondaryRoot, 600, 400);
+    Scene secondaryScene = new Scene(secondaryRoot, 600, 400); // Scene 생성 시 초기 너비와 높이를 지정합니다.
     secondaryStage.setScene(secondaryScene);
 
-    // SecondaryController에 Stage 설정
     secondaryController.setStage(secondaryStage);
 
     secondaryStage.show();
@@ -107,13 +105,13 @@ public class PrimaryController {
     System.out.println("[번역 원문]:\n" + CYAN + textResult + RESET);
 
     App.EXECUTOR_SERVICE.submit(() -> {
-      String translatedText = translationN2mtService.translate(textResult);
+      String translatedText = translationN2mtService.getTranslatedText(textResult);
       System.out.println("[번역 결과(n2mt)]:\n" + GREEN_BRIGHT + translatedText + RESET);
 
       Platform.runLater(() -> textArea2.setText(translatedText));
     });
     App.EXECUTOR_SERVICE.submit(() -> {
-      String translatedText = geminiWebApiService.translate(textResult);
+      String translatedText = geminiWebApiService.getTranslatedText(textResult);
       System.out.println("[번역 결과(gemini)]:\n" + GREEN_BRIGHT + translatedText + RESET);
 
       Platform.runLater(() -> textArea3.setText(translatedText));

@@ -5,14 +5,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.net.URI;
 import java.net.URLEncoder;
-import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * 외부 번역 API를 호출하여 텍스트를 번역하는 서비스입니다.
@@ -25,8 +20,6 @@ public class TranslationN2mtService extends AbstractHttpClientService implements
   private final String subFormData;
   private final String resultKey;
 
-  private final Map<String, String> cache = new HashMap<>();
-  private final HttpClient client;
   private final ObjectMapper mapper = new ObjectMapper();
 
   public TranslationN2mtService() {
@@ -39,19 +32,10 @@ public class TranslationN2mtService extends AbstractHttpClientService implements
             .append("=").append(value.toString()));
     subFormData = formData.toString();
     resultKey = configLoader.getProperty(PREFIX + "response.resultKey");
-
-    try {
-      client = createInsecureHttpClient();
-    } catch (NoSuchAlgorithmException | KeyManagementException e) {
-      throw new RuntimeException(e);
-    }
   }
 
+  @Override
   public String translate(String textToTranslate) {
-    return cache.computeIfAbsent(textToTranslate, key -> _translate(textToTranslate));
-  }
-
-  private String _translate(String textToTranslate) {
     try {
       // Form-Data 인코딩
       String formData = "text=" + URLEncoder.encode(textToTranslate, StandardCharsets.UTF_8) + subFormData;

@@ -1,4 +1,3 @@
-// src/main/java/blash10x/ocrtranslator/service/TranslationService.java
 package blash10x.ocrtranslator.service;
 
 import blash10x.ocrtranslator.util.JsonNodes;
@@ -10,16 +9,11 @@ import com.google.genai.types.GenerateContentResponse;
 import com.google.genai.types.HarmBlockThreshold;
 import com.google.genai.types.HarmCategory;
 import com.google.genai.types.SafetySetting;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
- * 외부 번역 API를 호출하여 텍스트를 번역하는 서비스입니다.
- * <p/>
  * Author: myungsik.sung@gmail.com
  */
 public class GeminiAIService implements TranslationService {
-  private final Map<String, String> cache = new HashMap<>();
   private final Client client;
   private final GenerateContentConfig generateContentConfig;
   private final String model;
@@ -60,11 +54,8 @@ public class GeminiAIService implements TranslationService {
         .build();
   }
 
+  @Override
   public String translate(String textToTranslate) {
-    return cache.computeIfAbsent(textToTranslate, key -> _translate(textToTranslate));
-  }
-
-  private String _translate(String textToTranslate) {
     String prompt = String.format(promptTemplate, textToTranslate);
     System.out.println("[GeminiAI:prompt]:\n" + prompt);
 
