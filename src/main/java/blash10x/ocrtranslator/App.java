@@ -1,4 +1,3 @@
-// src/main/java/blash10x/ocrtranslator/App.java
 package blash10x.ocrtranslator;
 
 import blash10x.ocrtranslator.controller.PrimaryController;

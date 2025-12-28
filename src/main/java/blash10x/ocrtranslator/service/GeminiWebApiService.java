@@ -37,7 +37,7 @@ public class GeminiWebApiService extends AbstractProcessService implements Trans
   public String _translate(String textToTranslate) {
     try {
       String prompt = String.format(promptTemplate, textToTranslate);
-      System.out.println("[Gemini-WebAPI:prompt]:\n" + prompt);
+      System.out.printf("[%s:prompt]:%n%s%n", getName(), prompt);
 
       writeToProcess(prompt + "\nEOF\n"); // translation command:
 

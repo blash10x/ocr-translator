@@ -69,13 +69,13 @@ public class GeminiAIService implements TranslationService {
 
   public String _translate(String textToTranslate) {
     String prompt = String.format(promptTemplate, textToTranslate);
-    System.out.println("[GeminiAI:prompt]:\n" + prompt);
+    System.out.printf("[%s:prompt]:%n%s%n", getName(), prompt);
 
     GenerateContentResponse response =
         client.models.generateContent(model, prompt, generateContentConfig);
 
     String responseText = response.text();
-    System.out.println("[GeminiAI:response]:\n" + responseText);
+    System.out.printf("[%s:response]:%n%s%n", getName(), responseText);
 
     JsonNode jsonNode = JsonNodes.toJsonNode(responseText);
     return jsonNode.get("target").textValue();
