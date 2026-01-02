@@ -23,8 +23,6 @@ public class PaddleOCRService extends AbstractProcessService implements OCRServi
   @Getter
   private final String pipeName;
 
-  private ResultCollector resultCollector;
-
   public PaddleOCRService() {
     super("paddleocr");
 
@@ -32,11 +30,6 @@ public class PaddleOCRService extends AbstractProcessService implements OCRServi
     resultBoxKey = configLoader.getProperty("ocr.paddleocr.output.json.result-boxes");
     command = configLoader.getProperty("ocr.paddleocr.command");
     pipeName = configLoader.getProperty("ocr.paddleocr.output.pipe-name");
-  }
-
-  @Override
-  public void initialize() {
-    resultCollector = start();
   }
 
   @Override

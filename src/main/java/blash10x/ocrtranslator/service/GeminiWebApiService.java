@@ -16,19 +16,12 @@ public class GeminiWebApiService extends AbstractProcessService implements Trans
   @Getter
   private final String pipeName;
 
-  private ResultCollector resultCollector;
-
   public GeminiWebApiService() {
     super("gemini-webapi");
 
     promptTemplate = configLoader.getProperty("translation.gemini-webapi.prompt-template");
     command = configLoader.getProperty("translation.gemini-webapi.command");
     pipeName = configLoader.getProperty("translation.gemini-webapi.output.pipe-name");
-  }
-
-  @Override
-  public void initialize() {
-    resultCollector = start();
   }
 
   @Override

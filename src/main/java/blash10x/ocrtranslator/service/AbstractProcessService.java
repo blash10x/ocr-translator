@@ -17,6 +17,7 @@ import java.util.function.Consumer;
 public abstract class AbstractProcessService {
   private static final ExecutorService executorService = App.EXECUTOR_SERVICE;
   protected final String processName;
+  protected ResultCollector resultCollector;
   private Process process;
   private BufferedWriter writer;
 
@@ -24,13 +25,11 @@ public abstract class AbstractProcessService {
     this.processName = processName;
   }
 
-  public abstract void initialize();
-
   public abstract String getCommand();
 
   public abstract String getPipeName();
 
-  protected ResultCollector start() {
+  public void start() {
     String command = getCommand();
     try {
       ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", command);
@@ -41,13 +40,11 @@ public abstract class AbstractProcessService {
 
       process = builder.start();
 
-      ResultCollector resultCollector  = new ResultCollector(this);
+      resultCollector  = new ResultCollector(this);
       executorService.execute(new ProcessOutputHandler(resultCollector));
 
       writer = new BufferedWriter(new OutputStreamWriter(process.getOutputStream())); // get stream for input to the process
       System.out.printf("%s has started: %s%n", processName, command);
-
-      return resultCollector;
     } catch (IOException e) {
       throw new RuntimeException(e);
     } finally {

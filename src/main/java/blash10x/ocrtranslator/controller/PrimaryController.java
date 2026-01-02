@@ -59,8 +59,8 @@ public class PrimaryController {
     textArea2.getStyleClass().add("clippable-textarea");
     textArea3.getStyleClass().add("clippable-textarea");
 
-    ((AbstractProcessService)ocrService).initialize();
-    ((AbstractProcessService)geminiWebApiService).initialize();
+    ((AbstractProcessService)ocrService).start();
+    ((AbstractProcessService)geminiWebApiService).start();
   }
 
   public void close() {
