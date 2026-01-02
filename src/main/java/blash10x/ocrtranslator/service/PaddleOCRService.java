@@ -15,19 +15,24 @@ import org.opencv.imgproc.Imgproc;
  * Author: myungsik.sung@gmail.com
  */
 public class PaddleOCRService extends AbstractProcessService implements OCRService {
-  private final ResultCollector resultCollector;
   private final String resultTextKey;
   private final String resultBoxKey;
+  private final String command;
+  private final ResultCollector resultCollector;
 
   public PaddleOCRService() {
     super("paddleocr");
 
-    String pipeName = configLoader.getProperty("ocr.paddleocr.output.pipe-name");
-    String command = configLoader.getProperty("ocr.paddleocr.command");
-
     resultTextKey = configLoader.getProperty("ocr.paddleocr.output.json.result-texts");
     resultBoxKey = configLoader.getProperty("ocr.paddleocr.output.json.result-boxes");
+    command = configLoader.getProperty("ocr.paddleocr.command");
+
+    String pipeName = configLoader.getProperty("ocr.paddleocr.output.pipe-name");
     resultCollector = new ResultCollector(pipeName);
+  }
+
+  @Override
+  public void initialize() {
     start(command, resultCollector);
   }
 

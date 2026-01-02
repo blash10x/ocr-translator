@@ -5,6 +5,7 @@ import static blash10x.ocrtranslator.util.ConsoleColors.CYAN_BRIGHT;
 import static blash10x.ocrtranslator.util.ConsoleColors.GREEN_BRIGHT;
 
 import blash10x.ocrtranslator.App;
+import blash10x.ocrtranslator.service.AbstractProcessService;
 import blash10x.ocrtranslator.service.GeminiWebApiService;
 import blash10x.ocrtranslator.service.OCRResult;
 import blash10x.ocrtranslator.service.OCRService;
@@ -53,12 +54,13 @@ public class PrimaryController {
   @FXML
   public void initialize() {
     // TextArea를 Clipping 가능하도록 설정 (CSS로 구현)
-    // 실제 Clipping 기능은 사용자 인터페이스 로직에 따라 구현해야 합니다.
-    // 여기서는 TextAreas에 텍스트를 표시하는 기능만 포함합니다.
     // CSS 예시: .clippable-textarea { -fx-background-color: lightgray; -fx-border-color: darkgray; }
     ocrTextArea.getStyleClass().add("clippable-textarea");
     textArea2.getStyleClass().add("clippable-textarea");
     textArea3.getStyleClass().add("clippable-textarea");
+
+    ((AbstractProcessService)ocrService).initialize();
+    ((AbstractProcessService)geminiWebApiService).initialize();
   }
 
   public void close() {
@@ -73,6 +75,7 @@ public class PrimaryController {
       if (secondaryStage.isShowing()) {
         secondaryController.handleCapture();
       } else {
+        primaryImageView.setImage(null);
         secondaryStage.show();
       }
       return;

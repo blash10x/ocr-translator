@@ -26,6 +26,8 @@ public abstract class AbstractProcessService {
     this.processName = processName;
   }
 
+  public abstract void initialize();
+
   protected void start(String command, Consumer<String> outputConsumer) {
     try {
       ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", command);

@@ -9,19 +9,23 @@ import java.util.Map;
  */
 public class GeminiWebApiService extends AbstractProcessService implements TranslationService {
   private final Map<String, String> cache = new HashMap<>();
-  private final ResultCollector resultCollector;
   private final String promptTemplate;
+  private final String command;
+  private final ResultCollector resultCollector;
 
   public GeminiWebApiService() {
     super("gemini-webapi");
 
-    String pipeName = configLoader.getProperty("translation.gemini-webapi.output.pipe-name");
-    String command = configLoader.getProperty("translation.gemini-webapi.command");
-
-    resultCollector = new ResultCollector(pipeName);
-    start(command, resultCollector);
-
     promptTemplate = configLoader.getProperty("translation.gemini-webapi.prompt-template");
+    command = configLoader.getProperty("translation.gemini-webapi.command");
+
+    String pipeName = configLoader.getProperty("translation.gemini-webapi.output.pipe-name");
+    resultCollector = new ResultCollector(pipeName);
+  }
+
+  @Override
+  public void initialize() {
+    start(command, resultCollector);
   }
 
   @Override
