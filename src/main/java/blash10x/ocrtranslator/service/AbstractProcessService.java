@@ -10,15 +10,13 @@ import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Consumer;
-import lombok.Getter;
 
 /**
  * Author: myungsik.sung@gmail.com
  */
 public abstract class AbstractProcessService {
   private static final ExecutorService executorService = App.EXECUTOR_SERVICE;
-  @Getter
-  private final String processName;
+  protected final String processName;
   private Process process;
   private BufferedWriter writer;
 
@@ -28,7 +26,12 @@ public abstract class AbstractProcessService {
 
   public abstract void initialize();
 
-  protected void start(String command, Consumer<String> outputConsumer) {
+  public abstract String getCommand();
+
+  public abstract String getPipeName();
+
+  protected ResultCollector start() {
+    String command = getCommand();
     try {
       ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", command);
 
@@ -37,21 +40,26 @@ public abstract class AbstractProcessService {
       builder.redirectErrorStream(true);
 
       process = builder.start();
-      executorService.execute(new ProcessOutputHandler(outputConsumer));
+
+      ResultCollector resultCollector  = new ResultCollector(this);
+      executorService.execute(new ProcessOutputHandler(resultCollector));
+
       writer = new BufferedWriter(new OutputStreamWriter(process.getOutputStream())); // get stream for input to the process
       System.out.printf("%s has started: %s%n", processName, command);
 
+      return resultCollector;
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    } finally {
       Runtime.getRuntime().addShutdownHook(new Thread(() -> {
         executorService.shutdown();
 
-        if (!process.isAlive()) {
+        if (process != null && !process.isAlive()) {
           System.out.printf("%s has already been terminated.%n", processName);
           return;
         }
         close();
       }));
-    } catch (IOException e) {
-      throw new RuntimeException(e);
     }
   }
 

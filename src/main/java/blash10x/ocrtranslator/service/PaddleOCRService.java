@@ -6,6 +6,7 @@ import java.io.File;
 import java.util.stream.Collectors;
 import javafx.scene.image.Image;
 import javafx.scene.image.WritableImage;
+import lombok.Getter;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
@@ -17,8 +18,12 @@ import org.opencv.imgproc.Imgproc;
 public class PaddleOCRService extends AbstractProcessService implements OCRService {
   private final String resultTextKey;
   private final String resultBoxKey;
+  @Getter
   private final String command;
-  private final ResultCollector resultCollector;
+  @Getter
+  private final String pipeName;
+
+  private ResultCollector resultCollector;
 
   public PaddleOCRService() {
     super("paddleocr");
@@ -26,14 +31,12 @@ public class PaddleOCRService extends AbstractProcessService implements OCRServi
     resultTextKey = configLoader.getProperty("ocr.paddleocr.output.json.result-texts");
     resultBoxKey = configLoader.getProperty("ocr.paddleocr.output.json.result-boxes");
     command = configLoader.getProperty("ocr.paddleocr.command");
-
-    String pipeName = configLoader.getProperty("ocr.paddleocr.output.pipe-name");
-    resultCollector = new ResultCollector(pipeName);
+    pipeName = configLoader.getProperty("ocr.paddleocr.output.pipe-name");
   }
 
   @Override
   public void initialize() {
-    start(command, resultCollector);
+    resultCollector = start();
   }
 
   @Override
@@ -41,8 +44,8 @@ public class PaddleOCRService extends AbstractProcessService implements OCRServi
     try {
       writeToProcess(imagePath + "\n"); // command to OCR:
 
-      synchronized (resultCollector) {
-        resultCollector.wait();
+      synchronized (this) {
+        wait();
       }
 
       String resultText= collectTexts(resultCollector.getResult(), resultTextKey);

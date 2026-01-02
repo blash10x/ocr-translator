@@ -43,7 +43,7 @@ public class TranslationWebApiService extends AbstractHttpClientService implemen
     return cache.computeIfAbsent(textToTranslate, key -> _translate(textToTranslate));
   }
 
-  public String _translate(String textToTranslate) {
+  private String _translate(String textToTranslate) {
     String formData = "text=" + URLEncoder.encode(textToTranslate, StandardCharsets.UTF_8) + subFormData;
     JsonNode rootNode = post(targetUrl,
         "application/x-www-form-urlencoded; charset=UTF-8",
