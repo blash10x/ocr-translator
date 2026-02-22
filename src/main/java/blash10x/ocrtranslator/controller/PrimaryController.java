@@ -6,7 +6,7 @@ import static blash10x.ocrtranslator.util.ConsoleColors.GREEN_BRIGHT;
 
 import blash10x.ocrtranslator.App;
 import blash10x.ocrtranslator.service.AbstractProcessService;
-import blash10x.ocrtranslator.service.GeminiWebApiService;
+import blash10x.ocrtranslator.service.NextWebApiService;
 import blash10x.ocrtranslator.service.OCRResult;
 import blash10x.ocrtranslator.service.OCRService;
 import blash10x.ocrtranslator.service.PaddleOCRService;
@@ -31,7 +31,7 @@ import javafx.stage.Stage;
 public class PrimaryController {
   private final OCRService ocrService;
   private final TranslationService translationN2mtService;
-  private final TranslationService geminiWebApiService;
+  private final NextWebApiService nextWebApiService;
 
   @FXML
   private ImageView primaryImageView;
@@ -48,7 +48,7 @@ public class PrimaryController {
   public PrimaryController() {
     ocrService = new PaddleOCRService();
     translationN2mtService = new TranslationWebApiService("n2mt");
-    geminiWebApiService = new GeminiWebApiService();
+    nextWebApiService = new NextWebApiService("next");
   }
 
   @FXML
@@ -60,12 +60,11 @@ public class PrimaryController {
     textArea3.getStyleClass().add("clippable-textarea");
 
     ((AbstractProcessService)ocrService).start();
-    ((AbstractProcessService)geminiWebApiService).start();
   }
 
   public void close() {
     ocrService.close();
-    geminiWebApiService.close();
+    nextWebApiService.close();
     Platform.exit();
   }
 
@@ -114,9 +113,9 @@ public class PrimaryController {
       Platform.runLater(() -> textArea2.setText(translatedText));
     });
     App.EXECUTOR_SERVICE.submit(() -> {
-      String translatedText = geminiWebApiService.translate(textResult);
+      String translatedText = nextWebApiService.translate(textResult);
       System.out.printf("[번역 결과(%s)]:%n%s%n",
-          geminiWebApiService.getName(), GREEN_BRIGHT(translatedText));
+          nextWebApiService.getName(), GREEN_BRIGHT(translatedText));
 
       Platform.runLater(() -> textArea3.setText(translatedText));
     });
